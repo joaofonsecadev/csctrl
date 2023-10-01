@@ -1,4 +1,5 @@
 use std::io::Write;
+use clap::Parser;
 use rand::Rng;
 
 mod webserver;
@@ -15,6 +16,8 @@ struct ClapParser {
 #[derive(serde::Serialize, serde::Deserialize)]
 struct Config {
     chat_signature: String,
+    cs_listen_path: String,
+    rest_api_address: String,
     secret: String,
     servers: Vec<ServerConfig>,
     tracing_env_filter: String,
@@ -68,14 +71,18 @@ fn write_config(global_values: &GlobalValues, config: &Config) {
 }
 
 fn load_config(global_values: &GlobalValues) -> Config {
+    let command_line_args = ClapParser::parse();
+    if command_line_args.reset { return generate_default_config(global_values); }
+
     let config_string = std::fs::read_to_string(&global_values.config_file_path);
     if config_string.is_err() { return generate_default_config(global_values); }
 
     match serde_json::from_str(&config_string.unwrap()) {
         Ok(config_json) => { return config_json; }
         Err(_) => {
-            tracing::error!("Can't load a valid config from 'csctrl.json'. Aborting execution");
-            panic!();
+            let error_message = "Can't load a valid config from 'csctrl.json'. Aborting execution. Tip: Rename or move the file so a new one is generated";
+            tracing::error!(error_message);
+            panic!("{}", error_message);
         }
     }
 }
@@ -85,6 +92,8 @@ fn generate_default_config(global_values: &GlobalValues) -> Config {
 
     let config = Config {
         chat_signature: "csctrl".to_string(),
+        cs_listen_path: "/cslog".to_string(),
+        rest_api_address: "0.0.0.0:27016".to_string(),
         secret: rand::thread_rng().sample_iter(&rand::distributions::Alphanumeric).take(16).map(char::from).collect(),
         servers: vec![],
         tracing_env_filter: "csctrl=info".to_string(),
