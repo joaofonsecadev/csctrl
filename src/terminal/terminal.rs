@@ -1,3 +1,7 @@
-pub fn start_terminal() {
+pub struct Terminal {
+
+}
+
+impl Terminal {
 
 }
