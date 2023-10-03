@@ -10,9 +10,9 @@ pub struct CsctrlConfig {
 
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct CsServerConfig {
-    name: String,
-    address: String,
-    rcon_address: String,
-    rcon_password: String,
-    csctrl_token: String,
+    pub name: String,
+    pub address: String,
+    pub rcon_address: String,
+    pub rcon_password: String,
+    pub csctrl_token: String,
 }

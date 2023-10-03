@@ -37,12 +37,15 @@ impl Webserver {
             });
         });
     }
+
+    pub fn shutdown(&self) {
+
+    }
 }
 
 #[tokio::main]
 async fn boot_thread_restapi(address: String, router: Router) {
-    let owned_address = address.to_string();
-    axum::Server::bind(&owned_address.parse().unwrap())
+    axum::Server::bind(&address.parse().unwrap())
         .serve(router.into_make_service()).await.unwrap();
 }
 

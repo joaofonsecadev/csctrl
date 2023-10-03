@@ -12,7 +12,7 @@ struct ClapParser {
 }
 
 fn main() {
-    let csctrl = csctrl::csctrl::Csctrl::csctrl();
+    let mut csctrl = csctrl::csctrl::Csctrl::csctrl();
 
     csctrl.init();
     while !csctrl.has_requested_exit() {
