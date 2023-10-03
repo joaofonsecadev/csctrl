@@ -4,13 +4,14 @@ use crossterm::terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScree
 use ratatui::backend::{Backend, CrosstermBackend};
 use crate::csctrl::types::CsServerConfig;
 use std::cell::OnceCell;
+use std::ops::Deref;
 use std::time::Duration;
 use crossterm::event::{Event, KeyCode};
 use ratatui::Frame;
 
 pub struct Terminal {
     selected_server: CsServerConfig,
-    terminal: OnceCell<ratatui::Terminal<CrosstermBackend<Stdout>>>,
+    terminal_ui: OnceCell<ratatui::Terminal<CrosstermBackend<Stdout>>>,
     is_terminal_active: bool
 }
 
@@ -24,7 +25,7 @@ impl Terminal {
                 rcon_password: "".to_string(),
                 csctrl_token: "".to_string(),
             },
-            terminal: OnceCell::new(),
+            terminal_ui: OnceCell::new(),
             is_terminal_active: false,
         }
     }
@@ -33,7 +34,7 @@ impl Terminal {
         enable_raw_mode().unwrap();
         crossterm::execute!(stdout(), EnterAlternateScreen).unwrap();
 
-        &self.terminal.get_or_init(|| {
+        self.terminal_ui.get_or_init(|| {
             return ratatui::Terminal::new(CrosstermBackend::new(stdout())).unwrap();
         });
 
@@ -41,22 +42,23 @@ impl Terminal {
     }
     
     pub fn tick(&mut self) {
-        &self.handle_events();
-        &self.terminal.get_mut().unwrap().draw(ui).unwrap();
+        self.handle_events();
+
+        self.terminal_ui.get_mut().unwrap().draw(ui).unwrap();
     }
 
     fn handle_events(&mut self) {
         if !crossterm::event::poll(Duration::from_millis(50)).unwrap() { return; }
 
         if let Event::Key(key) = crossterm::event::read().unwrap() {
-            if KeyCode::Char('q') == key.code { &self.close_terminal(); }
+            if KeyCode::Char('q') == key.code { self.close_terminal(); }
         }
     }
 
     fn close_terminal(&mut self) {
         disable_raw_mode().unwrap();
-        crossterm::execute!(self.terminal.get_mut().unwrap().backend_mut(), LeaveAlternateScreen);
-        self.terminal.get_mut().unwrap().show_cursor().unwrap();
+        crossterm::execute!(self.terminal_ui.get_mut().unwrap().backend_mut(), LeaveAlternateScreen);
+        self.terminal_ui.get_mut().unwrap().show_cursor().unwrap();
         self.is_terminal_active = false;
     }
 
@@ -69,6 +71,6 @@ impl Terminal {
     }
 }
 
-fn ui<B: Backend>(frame: &mut Frame<B>) {
+fn ui(frame: &mut Frame<CrosstermBackend<Stdout>>) {
 
 }

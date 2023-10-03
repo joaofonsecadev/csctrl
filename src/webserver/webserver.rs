@@ -15,7 +15,7 @@ impl Webserver {
     }
 
     pub fn init(&self, csctrl_config: &CsctrlConfig) {
-        let _ = &self.start_rest_api(csctrl_config);
+        let _ = self.start_rest_api(csctrl_config);
     }
 
     fn start_rest_api(&self, csctrl_config: &CsctrlConfig) {
@@ -31,7 +31,7 @@ impl Webserver {
     }
 
     fn prepare_thread_restapi(&self, address: String, router: Router) {
-        let _ = &self.thread_restapi.get_or_init(move || {
+        let _ = self.thread_restapi.get_or_init(move || {
             return std::thread::spawn(move || {
                 boot_thread_restapi(address.to_string(), router);
             });
