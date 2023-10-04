@@ -2,6 +2,7 @@ mod csctrl;
 mod webserver;
 mod terminal;
 mod system;
+mod commands;
 
 #[derive(clap::Parser)]
 #[command(author, version, about, long_about = None)]
