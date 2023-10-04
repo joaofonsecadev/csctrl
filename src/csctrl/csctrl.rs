@@ -1,12 +1,20 @@
+use std::sync::{OnceLock, RwLock};
 use crate::{csctrl, system};
 use crate::terminal::terminal::Terminal;
 use crate::webserver::webserver::Webserver;
 
+
+
 pub struct Csctrl {
     requested_exit: bool,
-    csctrl_config: csctrl::types::CsctrlConfig,
+    pub csctrl_config: csctrl::types::CsctrlConfig,
     webserver: Webserver,
     terminal: Terminal,
+}
+
+pub fn command_messenger() -> &'static RwLock<Vec<String>> {
+    static COMMAND_MESSENGER: OnceLock<RwLock<Vec<String>>> = OnceLock::new();
+    COMMAND_MESSENGER.get_or_init(|| RwLock::new(vec![]))
 }
 
 impl Csctrl {
@@ -20,7 +28,6 @@ impl Csctrl {
     }
 
     pub fn init(&mut self) {
-        system::utilities::configure_tracing(&self.csctrl_config.tracing_env_filter);
         tracing::info!("CSCTRL Version {}", env!("CARGO_PKG_VERSION"));
 
         let _ = &self.webserver.init(&self.csctrl_config);
@@ -30,6 +37,16 @@ impl Csctrl {
     pub fn tick(&mut self) {
         if *self.terminal.is_terminal_active() { &self.terminal.tick(); }
         else { self.requested_exit = true; }
+
+        self.process_command_messenger();
+    }
+
+    fn process_command_messenger(&self) {
+        let is_command_messenger_empty = command_messenger().read().unwrap().is_empty();
+        if is_command_messenger_empty { return; }
+
+        let command = command_messenger().write().unwrap().pop().unwrap();
+        tracing::debug!("Processing command '{}'", command);
     }
 
     pub fn has_requested_exit(&self) -> &bool {

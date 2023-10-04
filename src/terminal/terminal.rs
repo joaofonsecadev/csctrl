@@ -76,6 +76,13 @@ impl Terminal {
                     if key.kind != KeyEventKind::Press { return; }
                     &self.terminal_ui_state.input_box.pop();
                 }
+                KeyCode::Enter => {
+                    if key.kind != KeyEventKind::Press { return; }
+                    let input = self.terminal_ui_state.input_box.to_string();
+                    if input.is_empty() { return; }
+                    self.terminal_ui_state.input_box.clear();
+                    crate::csctrl::csctrl::command_messenger().write().unwrap().push(input);
+                }
                 KeyCode::Esc => { self.close_terminal(); }
                 _ => {}
             }

@@ -53,10 +53,16 @@ fn generate_default_config() -> CsctrlConfig {
     return config;
 }
 
-pub fn configure_tracing(env_filter: &str) {
-    tracing::subscriber::set_global_default(tracing_subscriber::FmtSubscriber::builder()
+pub fn configure_tracing(env_filter: &str) -> tracing_appender::non_blocking::WorkerGuard {
+    let timestamp = chrono::Local::now().format("%Y-%m-%d---%H-%M-%S");
+    let file_appender = tracing_appender::rolling::never("logs/csctrl", format!("csctrl_{}.log", timestamp));
+    let (non_blocking, _guard) = tracing_appender::non_blocking(file_appender);
+
+    tracing::subscriber::set_global_default(tracing_subscriber::fmt().with_writer(non_blocking)
         .with_target(false)
         .with_env_filter(env_filter)
-        .finish())
-        .expect("Failed tracing subscriber creation");
+        .with_ansi(false)
+        .finish()).expect("Failed tracing subscriber creation");
+
+    return _guard;
 }
