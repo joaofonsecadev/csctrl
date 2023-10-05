@@ -1,12 +1,25 @@
-use crate::commands::base::{CommandExec, CommandInfo};
+use crate::commands::base::{Command};
 use crate::csctrl::csctrl::Csctrl;
 
-pub struct Rcon {
-    command_info: CommandInfo
-}
+pub struct Rcon;
+impl Command for Rcon {
+    fn exec(&self, csctrl: &mut Csctrl, command_string: String) {
+        tracing::info!("Command '{}' is being executed: '{}'", self.name(), command_string)
+    }
 
-impl CommandExec for Rcon {
-    fn command(&self, csctrl: &mut Csctrl, command_string: &String) {
-        tracing::info!("Command '{}' is being executed: {}", self.command_info.command, command_string)
+    fn name(&self) -> String {
+        "rcon".to_string()
+    }
+
+    fn description(&self) -> String {
+        "Executes commands in the currently selected server".to_string()
+    }
+
+    fn variables(&self) -> String {
+        "1. Command(s) text to send to the server".to_string()
+    }
+
+    fn example(&self) -> String {
+        "rcon sv_cheats 1".to_string()
     }
 }
