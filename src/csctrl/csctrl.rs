@@ -4,15 +4,9 @@ use std::sync::{OnceLock, RwLock};
 use crate::{csctrl, system};
 use crate::commands::base::Command;
 use crate::commands::rcon::Rcon;
+use crate::csctrl::server::CsctrlServer;
 use crate::terminal::terminal::Terminal;
 use crate::webserver::webserver::Webserver;
-
-pub struct Csctrl {
-    requested_exit: bool,
-    pub csctrl_config: csctrl::types::CsctrlConfig,
-    webserver: Webserver,
-    terminal: Terminal,
-}
 
 pub fn get_command_messenger() -> &'static RwLock<Vec<String>> {
     static COMMAND_MESSENGER: OnceLock<RwLock<Vec<String>>> = OnceLock::new();
@@ -24,6 +18,14 @@ pub fn get_registered_commands() -> &'static RwLock<HashMap<String, Box<dyn Comm
     REGISTERED_COMMANDS.get_or_init(|| RwLock::new(HashMap::new()))
 }
 
+pub struct Csctrl {
+    requested_exit: bool,
+    pub csctrl_config: csctrl::types::CsctrlConfig,
+    webserver: Webserver,
+    terminal: Terminal,
+    servers: HashMap<String, CsctrlServer>
+}
+
 impl Csctrl {
     pub fn csctrl() -> Csctrl {
         Self {
@@ -31,6 +33,46 @@ impl Csctrl {
             csctrl_config: system::utilities::load_config(),
             webserver: Webserver::webserver(),
             terminal: Terminal::terminal(),
+            servers: HashMap::new(),
+        }
+    }
+
+    pub fn init(&mut self) {
+        tracing::info!("CSCTRL Version {}", env!("CARGO_PKG_VERSION"));
+        let _ = self.register_commands();
+        let _ = self.webserver.init(&self.csctrl_config);
+        let _ = self.terminal.init();
+
+        self.reset_registered_servers();
+    }
+
+    pub fn tick(&mut self) {
+        if *self.terminal.is_terminal_active() { self.terminal.tick(); }
+        else { self.requested_exit = true; }
+
+        self.process_command_messenger();
+        for (_sv_address, server) in self.servers {
+            server.tick();
+        }
+    }
+
+    pub fn shutdown(&self) {
+        tracing::info!("Exiting CSCTRL");
+        let _ = &self.terminal.shutdown();
+        let _ = &self.webserver.shutdown();
+    }
+
+    fn reset_registered_servers(&mut self) {
+        self.servers.clear();
+        for server in &self.csctrl_config.servers {
+            if self.servers.contains_key(server.address.as_str()) {
+                tracing::error!("A server with address '{}' is already registered", server.address);
+                continue;
+            }
+
+            let registered_server = CsctrlServer::csctrl_server(server.clone());
+            registered_server.init();
+            self.servers.insert(server.address.to_string(), registered_server);
         }
     }
 
@@ -41,31 +83,7 @@ impl Csctrl {
         let command_rcon = Box::new(Rcon);
         registered_commands.insert(command_rcon.name(), command_rcon);
     }
-
-    pub fn has_requested_exit(&self) -> &bool {
-        return &self.requested_exit;
-    }
-
-    pub fn init(&mut self) {
-        tracing::info!("CSCTRL Version {}", env!("CARGO_PKG_VERSION"));
-        let _ = self.register_commands();
-        let _ = self.webserver.init(&self.csctrl_config);
-        let _ = self.terminal.init();
-    }
-
-    pub fn tick(&mut self) {
-        if *self.terminal.is_terminal_active() { self.terminal.tick(); }
-        else { self.requested_exit = true; }
-
-        self.process_command_messenger();
-    }
-
-    pub fn shutdown(&self) {
-        tracing::info!("Exiting CSCTRL");
-        let _ = &self.terminal.shutdown();
-        let _ = &self.webserver.shutdown();
-    }
-
+    
     fn process_command_messenger(&mut self) {
         let is_command_messenger_empty = get_command_messenger().read().unwrap().is_empty();
         if is_command_messenger_empty { return; }
@@ -100,5 +118,9 @@ impl Csctrl {
                 found_command.exec(self, trimmed_string.to_string())
             }
         }
+    }
+
+    pub fn has_requested_exit(&self) -> &bool {
+        return &self.requested_exit;
     }
 }

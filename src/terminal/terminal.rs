@@ -2,10 +2,11 @@ use std::io::{stdout, Stdout};
 use crossterm::ExecutableCommand;
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen};
 use ratatui::backend::{Backend, CrosstermBackend};
-use crate::csctrl::types::CsServerConfig;
+use crate::csctrl::types::CsctrlServerSetup;
 use std::cell::OnceCell;
 use std::ops::Deref;
 use std::time::Duration;
+use clap::Parser;
 use crossterm::event::{Event, KeyCode, KeyEventKind};
 use ratatui::Frame;
 use ratatui::layout::{Constraint, Layout};
@@ -13,9 +14,10 @@ use ratatui::prelude::{Alignment, Direction};
 use ratatui::style::{Color, Style, Stylize};
 use ratatui::text::Text;
 use ratatui::widgets::{Block, Borders, Paragraph};
+use crate::ClapParser;
 
 struct TerminalUiState {
-    selected_server: CsServerConfig,
+    selected_server: CsctrlServerSetup,
     input_box: String,
 }
 
@@ -29,7 +31,7 @@ impl Terminal {
     pub fn terminal() -> Terminal {
         Terminal {
             terminal_ui_state: TerminalUiState {
-                selected_server: CsServerConfig {
+                selected_server: CsctrlServerSetup {
                     name: "".to_string(),
                     address: "".to_string(),
                     rcon_address: "".to_string(),
@@ -44,6 +46,7 @@ impl Terminal {
     }
     
     pub fn init(&mut self) {
+        if ClapParser::parse().disable_terminal { return; }
         enable_raw_mode().unwrap();
         crossterm::execute!(stdout(), EnterAlternateScreen).unwrap();
 
@@ -63,7 +66,7 @@ impl Terminal {
     }
 
     fn handle_events(&mut self) {
-        if !crossterm::event::poll(Duration::from_millis(50)).unwrap() { return; }
+        if !crossterm::event::poll(Default::default()).unwrap() { return; }
 
         if let Event::Key(key) = crossterm::event::read().unwrap() {
             match key.code {
