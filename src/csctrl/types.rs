@@ -16,3 +16,17 @@ pub struct CsServerConfig {
     pub rcon_password: String,
     pub csctrl_token: String,
 }
+
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct MatchSetup {
+    pub team_a: TeamConfig,
+    pub team_b: TeamConfig,
+    pub knife_round: bool,
+    pub cfg_filename: String
+}
+
+#[derive(serde::Serialize, serde::Deserialize)]
+pub struct TeamConfig {
+    pub name: String,
+    pub members_steam_64: Vec<String>
+}

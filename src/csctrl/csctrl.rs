@@ -22,7 +22,6 @@ pub fn get_command_messenger() -> &'static RwLock<Vec<String>> {
 pub fn get_registered_commands() -> &'static RwLock<HashMap<String, Box<dyn Command + Sync + Send>>> {
     static REGISTERED_COMMANDS: OnceLock<RwLock<HashMap<String, Box<dyn Command + Sync + Send>>>> = OnceLock::new();
     REGISTERED_COMMANDS.get_or_init(|| RwLock::new(HashMap::new()))
-
 }
 
 impl Csctrl {
