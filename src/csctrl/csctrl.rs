@@ -51,7 +51,7 @@ impl Csctrl {
         else { self.requested_exit = true; }
 
         self.process_command_messenger();
-        for (_sv_address, server) in self.servers {
+        for (_sv_address, server) in &self.servers {
             server.tick();
         }
     }

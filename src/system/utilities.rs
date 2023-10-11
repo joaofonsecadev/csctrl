@@ -54,8 +54,14 @@ fn generate_default_config() -> CsctrlConfig {
 }
 
 pub fn configure_tracing(env_filter: &str) -> tracing_appender::non_blocking::WorkerGuard {
+    let mut csctrl_binary_path = std::env::current_exe().unwrap();
+    csctrl_binary_path.pop();
+    csctrl_binary_path.push("logs");
+    csctrl_binary_path.push("csctrl");
+
+
     let timestamp = chrono::Local::now().format("%Y-%m-%d---%H-%M-%S");
-    let file_appender = tracing_appender::rolling::never("logs/csctrl", format!("csctrl_{}.log", timestamp));
+    let file_appender = tracing_appender::rolling::never(csctrl_binary_path, format!("csctrl_{}.log", timestamp));
     let (non_blocking, _guard) = tracing_appender::non_blocking(file_appender);
 
     tracing::subscriber::set_global_default(tracing_subscriber::fmt().with_writer(non_blocking)
