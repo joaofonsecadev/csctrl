@@ -3,8 +3,7 @@ use crate::csctrl::csctrl::Csctrl;
 
 pub struct Rcon;
 impl Command for Rcon {
-    fn exec(&self, csctrl: &mut Csctrl, arguments: String) {
-        tracing::info!("Command '{}' is being executed: '{}'", self.name(), arguments)
+    fn exec(&self, csctrl: &mut Csctrl, target_address: String, arguments: String) {
     }
 
     fn name(&self) -> String {

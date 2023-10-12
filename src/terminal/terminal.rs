@@ -15,9 +15,10 @@ use ratatui::style::{Color, Style, Stylize};
 use ratatui::text::Text;
 use ratatui::widgets::{Block, Borders, Paragraph};
 use crate::ClapParser;
+use crate::csctrl::server::CsctrlServer;
 
 struct TerminalUiState {
-    selected_server: CsctrlServerSetup,
+    selected_server_address: String,
     input_box: String,
 }
 
@@ -31,13 +32,7 @@ impl Terminal {
     pub fn terminal() -> Terminal {
         Terminal {
             terminal_ui_state: TerminalUiState {
-                selected_server: CsctrlServerSetup {
-                    name: "".to_string(),
-                    address: "".to_string(),
-                    rcon_address: "".to_string(),
-                    rcon_password: "".to_string(),
-                    csctrl_token: "".to_string(),
-                },
+                selected_server_address: "".to_string(),
                 input_box: "".to_string(),
             },
             terminal_ui: OnceCell::new(),
@@ -81,7 +76,7 @@ impl Terminal {
                 }
                 KeyCode::Enter => {
                     if key.kind != KeyEventKind::Press { return; }
-                    let input = self.terminal_ui_state.input_box.to_string();
+                    let input = format!("<csctrlseptarget>{}<csctrlseptarget>{}", self.terminal_ui_state.selected_server_address, self.terminal_ui_state.input_box.to_string());
                     if input.is_empty() { return; }
                     self.terminal_ui_state.input_box.clear();
                     crate::csctrl::csctrl::get_command_messenger().write().unwrap().push(input);

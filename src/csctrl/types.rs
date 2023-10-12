@@ -14,7 +14,6 @@ pub struct CsctrlServerSetup {
     pub address: String,
     pub rcon_address: String,
     pub rcon_password: String,
-    pub csctrl_token: String,
 }
 
 #[derive(serde::Serialize, serde::Deserialize)]

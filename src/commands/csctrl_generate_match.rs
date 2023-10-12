@@ -3,7 +3,7 @@ use crate::csctrl::csctrl::Csctrl;
 
 pub struct CsctrlGenerateMatch;
 impl Command for CsctrlGenerateMatch {
-    fn exec(&self, csctrl: &mut Csctrl, arguments: String) {
+    fn exec(&self, csctrl: &mut Csctrl, target_address: String, arguments: String) {
         todo!()
     }
 

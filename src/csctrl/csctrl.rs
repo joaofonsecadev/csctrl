@@ -3,6 +3,7 @@ use std::ops::Add;
 use std::sync::{OnceLock, RwLock};
 use crate::{csctrl, system};
 use crate::commands::base::Command;
+use crate::commands::csctrl_generate_server::CsctrlGenerateServer;
 use crate::commands::rcon::Rcon;
 use crate::csctrl::server::CsctrlServer;
 use crate::terminal::terminal::Terminal;
@@ -82,6 +83,9 @@ impl Csctrl {
 
         let command_rcon = Box::new(Rcon);
         registered_commands.insert(command_rcon.name(), command_rcon);
+
+        let command_csctrl_generate_server = Box::new(CsctrlGenerateServer);
+        registered_commands.insert(command_csctrl_generate_server.name(), command_csctrl_generate_server);
     }
     
     fn process_command_messenger(&mut self) {
@@ -93,8 +97,9 @@ impl Csctrl {
     }
 
     fn handle_command(&mut self, command_string: String) {
-        tracing::trace!("Processing command '{}'", command_string);
-        let trimmed_string = command_string.trim();
+        let split_target_address: Vec<&str> = command_string.split("<csctrlseptarget>").collect();
+        let target_address = split_target_address[1];
+        let trimmed_string = split_target_address[2].trim();
         let split_string: Vec<&str> = trimmed_string.split(" ").collect();
 
         let registered_commands = get_registered_commands().read().unwrap();
@@ -114,10 +119,14 @@ impl Csctrl {
                     arguments.push(' ');
                 }
 
-                tracing::trace!("Executing command '{}' with arguments '{}'", split_string[0], arguments.trim_end());
-                found_command.exec(self, trimmed_string.to_string())
+                tracing::trace!("Executing command '{}' on target '{}' with arguments '{}'", split_string[0], target_address, arguments.trim_end());
+                found_command.exec(self, target_address.to_string(), arguments.trim_end().to_string())
             }
         }
+    }
+
+    pub fn write_config(&self) {
+        system::utilities::write_config(&self.csctrl_config);
     }
 
     pub fn has_requested_exit(&self) -> &bool {

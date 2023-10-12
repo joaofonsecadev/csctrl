@@ -11,7 +11,7 @@ pub fn get_csctrl_config_file_path() -> PathBuf {
     return csctrl_config_file_path;
 }
 
-fn write_config(config: &CsctrlConfig) {
+pub fn write_config(config: &CsctrlConfig) {
     let csctrl_config_file_path = get_csctrl_config_file_path();
     let file = std::fs::OpenOptions::new().write(true).truncate(true).create(true).open(&csctrl_config_file_path).unwrap();
     match serde_json::to_writer_pretty(file, config) {
