@@ -6,6 +6,7 @@ use crate::commands::base::Command;
 use crate::commands::csctrl_generate_server::CsctrlGenerateServer;
 use crate::commands::rcon::Rcon;
 use crate::csctrl::server::CsctrlServer;
+use crate::csctrl::types::CsctrlDataParent;
 use crate::terminal::terminal::Terminal;
 use crate::webserver::webserver::Webserver;
 
@@ -17,6 +18,11 @@ pub fn get_command_messenger() -> &'static RwLock<Vec<String>> {
 pub fn get_registered_commands() -> &'static RwLock<HashMap<String, Box<dyn Command + Sync + Send>>> {
     static REGISTERED_COMMANDS: OnceLock<RwLock<HashMap<String, Box<dyn Command + Sync + Send>>>> = OnceLock::new();
     REGISTERED_COMMANDS.get_or_init(|| RwLock::new(HashMap::new()))
+}
+
+pub fn get_data() -> &'static RwLock<CsctrlDataParent> {
+    static CSCTRL_DATA: OnceLock<RwLock<CsctrlDataParent>> = OnceLock::new();
+    CSCTRL_DATA.get_or_init(|| RwLock::new(CsctrlDataParent { servers: vec![] }))
 }
 
 pub struct Csctrl {

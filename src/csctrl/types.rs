@@ -29,3 +29,35 @@ pub struct TeamSettings {
     pub name: String,
     pub members_steam_64: Vec<String>
 }
+
+pub struct CsctrlDataParent {
+    pub servers: Vec<CsctrlDataServer>
+}
+
+pub struct CsctrlDataServer {
+    pub setup: CsctrlServerSetup,
+    pub is_online: bool,
+    pub team_a: CsctrlDataTeam,
+    pub team_b: CsctrlDataTeam,
+    pub status: CsctrlMatchStatus
+}
+
+pub struct CsctrlDataPlayer {
+    pub name: String,
+    pub steam64: String,
+    pub is_ready: bool,
+}
+
+pub struct CsctrlDataTeam {
+    pub name: String,
+    pub score: u8,
+    pub players: Vec<CsctrlDataPlayer>
+}
+
+pub enum CsctrlMatchStatus {
+    NotStarted,
+    KnifeRound,
+    Warmup,
+    Live,
+    Finished,
+}
