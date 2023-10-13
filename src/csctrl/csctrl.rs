@@ -30,7 +30,7 @@ pub struct Csctrl {
     pub csctrl_config: csctrl::types::CsctrlConfig,
     webserver: Webserver,
     terminal: Terminal,
-    servers: HashMap<String, CsctrlServer>
+    pub servers: HashMap<String, CsctrlServer>
 }
 
 impl Csctrl {
@@ -77,7 +77,7 @@ impl Csctrl {
                 continue;
             }
 
-            let registered_server = CsctrlServer::csctrl_server(server.clone());
+            let mut registered_server = CsctrlServer::csctrl_server(server.clone());
             registered_server.init();
             self.servers.insert(server.address.to_string(), registered_server);
         }

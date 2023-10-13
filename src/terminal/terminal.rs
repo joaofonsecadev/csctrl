@@ -32,7 +32,7 @@ impl Terminal {
     pub fn terminal() -> Terminal {
         Terminal {
             terminal_ui_state: TerminalUiState {
-                selected_server_address: "".to_string(),
+                selected_server_address: "89.114.134.177:27015".to_string(),
                 input_box: "".to_string(),
             },
             terminal_ui: OnceCell::new(),
