@@ -3,6 +3,7 @@ mod webserver;
 mod terminal;
 mod system;
 mod commands;
+mod rcon;
 
 #[derive(clap::Parser)]
 #[command(author, version, about, long_about = None)]

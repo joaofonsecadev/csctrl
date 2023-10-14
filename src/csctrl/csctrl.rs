@@ -30,7 +30,8 @@ pub struct Csctrl {
     pub csctrl_config: csctrl::types::CsctrlConfig,
     webserver: Webserver,
     terminal: Terminal,
-    pub servers: HashMap<String, CsctrlServer>
+    pub servers: HashMap<String, CsctrlServer>,
+    server_threads_receiver: tokio::sync::mpsc::Receiver<String>,
 }
 
 impl Csctrl {
@@ -72,6 +73,8 @@ impl Csctrl {
     fn reset_registered_servers(&mut self) {
         self.servers.clear();
         for server in &self.csctrl_config.servers {
+            let (transmitter, receiver) = tokio::sync::mpsc::unbounded_channel();
+            
             if self.servers.contains_key(server.address.as_str()) {
                 tracing::error!("A server with address '{}' is already registered", server.address);
                 continue;

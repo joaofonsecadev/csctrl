@@ -29,6 +29,10 @@ pub struct TeamSettings {
     pub members_steam_64: Vec<String>
 }
 
+pub struct CsctrlServerContainer {
+    pub server_thread: tokio::task::JoinHandle<()>,
+}
+
 pub struct CsctrlDataParent {
     pub servers: Vec<CsctrlDataServer>
 }
