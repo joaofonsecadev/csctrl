@@ -10,7 +10,7 @@ use crate::csctrl::server::CsctrlServer;
 pub struct Rcon;
 impl Command for Rcon {
     fn exec(&self, csctrl: &mut Csctrl, target_address: String, arguments: String) {
-        let found_server = match csctrl.servers.get_mut(&target_address) {
+        let found_server = match csctrl.servers.get(&target_address) {
             Some(server) => { server }
             None => {
                 tracing::error!("No server with address '{}' to run rcon on", target_address);

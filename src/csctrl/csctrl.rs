@@ -88,8 +88,9 @@ impl Csctrl {
 
             let (local_sender, local_receiver) = tokio::sync::mpsc::unbounded_channel();
             let cloned_server_config = server.clone();
+            let cloned_sender = self.server_threads_sender.get().unwrap().clone();
             let local_thread = std::thread::Builder::new().name(format!("[{}]", server.address)).spawn(move || {
-                let server = CsctrlServer::csctrl_server(cloned_server_config, local_receiver);
+                let mut server = CsctrlServer::csctrl_server(cloned_server_config, cloned_sender, local_receiver);
                 server.main();
             }).unwrap();
 
