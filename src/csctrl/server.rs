@@ -30,14 +30,14 @@ impl CsctrlServer {
 
     async fn init_rcon_connection(&mut self) {
         match <Connection<TcpStream>>::builder()
-            .connect(&self.setup.rcon_address, &self.setup.rcon_password).await {
+            .connect(&self.setup.address, &self.setup.rcon_password).await {
             Ok(connection) => {
                 self.rcon_connection.get_or_init(|| connection);
                 self.is_rcon_connected = true;
             }
             Err(error) => {
                 tracing::error!("Can't establish a RCON connection to rcon address '{}' with password '{}'. Error: {}",
-                    self.setup.rcon_address, self.setup.rcon_password, error);
+                    self.setup.address, self.setup.rcon_password, error);
                 return;
             }
         };

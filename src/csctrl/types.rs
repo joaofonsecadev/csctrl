@@ -12,7 +12,6 @@ pub struct CsctrlConfig {
 pub struct CsctrlServerSetup {
     pub name: String,
     pub address: String,
-    pub rcon_address: String,
     pub rcon_password: String,
 }
 
