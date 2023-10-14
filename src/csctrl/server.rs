@@ -6,17 +6,25 @@ use tokio::runtime::Runtime;
 use crate::csctrl::types::CsctrlServerSetup;
 
 pub struct CsctrlServer {
-    setup: CsctrlServerSetup,
+    config: CsctrlServerSetup,
     is_rcon_connected: bool,
     rcon_connection: OnceLock<Connection<TcpStream>>,
+    thread_receiver: tokio::sync::mpsc::UnboundedReceiver<String>
 }
 
 impl CsctrlServer {
-    pub fn csctrl_server(setup: CsctrlServerSetup) -> CsctrlServer {
+    pub fn csctrl_server(setup: CsctrlServerSetup, receiver: tokio::sync::mpsc::UnboundedReceiver<String>) -> CsctrlServer {
         CsctrlServer {
-            setup,
-            is_rcon_connected: false,
+            config: setup,
             rcon_connection: OnceLock::new(),
+            thread_receiver: receiver,
+        }
+    }
+
+    pub fn main(&self) {
+        tracing::debug!("Thread created");
+        loop {
+            self.tick();
         }
     }
 
@@ -25,19 +33,19 @@ impl CsctrlServer {
     }
 
     pub fn tick(&self) {
-        if !self.is_rcon_connected { return; }
+
     }
 
     async fn init_rcon_connection(&mut self) {
         match <Connection<TcpStream>>::builder()
-            .connect(&self.setup.address, &self.setup.rcon_password).await {
+            .connect(&self.config.address, &self.config.rcon_password).await {
             Ok(connection) => {
                 self.rcon_connection.get_or_init(|| connection);
                 self.is_rcon_connected = true;
             }
             Err(error) => {
                 tracing::error!("Can't establish a RCON connection to rcon address '{}' with password '{}'. Error: {}",
-                    self.setup.address, self.setup.rcon_password, error);
+                    self.config.address, self.config.rcon_password, error);
                 return;
             }
         };
@@ -45,7 +53,7 @@ impl CsctrlServer {
 
     pub async fn rcon(&mut self, command: String) {
         if !self.is_rcon_connected {
-            tracing::error!("No existing rcon connection for server '{}'", self.setup.address);
+            tracing::error!("No existing rcon connection for server '{}'", self.config.address);
             return;
         }
         let connection = self.rcon_connection.get_mut().unwrap();
@@ -60,5 +68,5 @@ impl CsctrlServer {
         tracing::trace!("response: {}", response);
     }
 
-    pub fn get_setup(&self) -> &CsctrlServerSetup { return &self.setup }
+    pub fn get_setup(&self) -> &CsctrlServerSetup { return &self.config }
 }

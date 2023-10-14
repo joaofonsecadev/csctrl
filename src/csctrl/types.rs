@@ -30,7 +30,8 @@ pub struct TeamSettings {
 }
 
 pub struct CsctrlServerContainer {
-    pub server_thread: tokio::task::JoinHandle<()>,
+    pub thread: std::thread::JoinHandle<()>,
+    pub sender: tokio::sync::mpsc::UnboundedSender<String>
 }
 
 pub struct CsctrlDataParent {

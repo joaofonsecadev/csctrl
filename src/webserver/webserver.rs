@@ -26,15 +26,14 @@ impl Webserver {
             .route(receive_cslog_path, axum::routing::post(receive_cslog));
 
         let _ = &self.prepare_thread_restapi(ip_port.to_string(), api);
-        tracing::debug!("Webserver REST API thread created");
-        tracing::debug!("Listening to CS2 logs at '{}{}'", ip_port, receive_cslog_path);
     }
 
     fn prepare_thread_restapi(&self, address: String, router: Router) {
         let _ = self.thread_restapi.get_or_init(move || {
-            return std::thread::spawn(move || {
+            return std::thread::Builder::new().name("[Webserver]".to_string()).spawn(move || {
+                tracing::debug!("Thread created");
                 boot_thread_restapi(address.to_string(), router);
-            });
+            }).unwrap();
         });
     }
 

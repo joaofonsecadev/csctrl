@@ -1,6 +1,7 @@
 use std::thread::sleep;
 use std::time::Duration;
 use tokio::runtime::Runtime;
+use tokio::sync::mpsc::error::SendError;
 use tokio::task;
 use crate::commands::base::{Command};
 use crate::csctrl::csctrl::Csctrl;
@@ -17,7 +18,10 @@ impl Command for Rcon {
             }
         };
 
-        Runtime::new().unwrap().block_on(found_server.rcon(arguments));
+        match found_server.sender.send(format!("rcon {}", arguments)) {
+            Ok(_) => {}
+            Err(error) => { tracing::error!("Can't send message to thread belonging to server '{}'. Error: {}", target_address, error); }
+        }
     }
 
     fn name(&self) -> String {

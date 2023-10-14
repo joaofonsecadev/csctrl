@@ -68,6 +68,7 @@ pub fn configure_tracing(env_filter: &str) -> tracing_appender::non_blocking::Wo
         .with_target(false)
         .with_env_filter(env_filter)
         .with_ansi(false)
+        .with_thread_names(true)
         .finish()).expect("Failed tracing subscriber creation");
 
     return _guard;

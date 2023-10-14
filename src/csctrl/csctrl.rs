@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 use std::ops::Add;
 use std::sync::{OnceLock, RwLock};
+use tokio::sync::mpsc::{UnboundedReceiver, UnboundedSender};
 use crate::{csctrl, system};
 use crate::commands::base::Command;
 use crate::commands::csctrl_generate_server::CsctrlGenerateServer;
 use crate::commands::rcon::Rcon;
 use crate::csctrl::server::CsctrlServer;
-use crate::csctrl::types::CsctrlDataParent;
+use crate::csctrl::types::{CsctrlDataParent, CsctrlServerContainer};
 use crate::terminal::terminal::Terminal;
 use crate::webserver::webserver::Webserver;
 
@@ -30,8 +31,9 @@ pub struct Csctrl {
     pub csctrl_config: csctrl::types::CsctrlConfig,
     webserver: Webserver,
     terminal: Terminal,
-    pub servers: HashMap<String, CsctrlServer>,
-    server_threads_receiver: tokio::sync::mpsc::Receiver<String>,
+    pub servers: HashMap<String, CsctrlServerContainer>,
+    server_threads_receiver: OnceLock<tokio::sync::mpsc::UnboundedReceiver<String>>,
+    server_threads_sender: OnceLock<tokio::sync::mpsc::UnboundedSender<String>>
 }
 
 impl Csctrl {
@@ -42,6 +44,8 @@ impl Csctrl {
             webserver: Webserver::webserver(),
             terminal: Terminal::terminal(),
             servers: HashMap::new(),
+            server_threads_receiver: OnceLock::new(),
+            server_threads_sender: OnceLock::new()
         }
     }
 
@@ -51,6 +55,9 @@ impl Csctrl {
         let _ = self.webserver.init(&self.csctrl_config);
         let _ = self.terminal.init();
 
+        let(sender, receiver) = tokio::sync::mpsc::unbounded_channel();
+        self.server_threads_receiver.get_or_init(|| receiver);
+        self.server_threads_sender.get_or_init(|| sender);
         self.reset_registered_servers();
     }
 
@@ -60,7 +67,7 @@ impl Csctrl {
 
         self.process_command_messenger();
         for (_sv_address, server) in &self.servers {
-            server.tick();
+            //server.tick();
         }
     }
 
@@ -72,17 +79,25 @@ impl Csctrl {
 
     fn reset_registered_servers(&mut self) {
         self.servers.clear();
+
         for server in &self.csctrl_config.servers {
-            let (transmitter, receiver) = tokio::sync::mpsc::unbounded_channel();
-            
             if self.servers.contains_key(server.address.as_str()) {
                 tracing::error!("A server with address '{}' is already registered", server.address);
                 continue;
             }
 
-            let mut registered_server = CsctrlServer::csctrl_server(server.clone());
-            registered_server.init();
-            self.servers.insert(server.address.to_string(), registered_server);
+            let (local_sender, local_receiver) = tokio::sync::mpsc::unbounded_channel();
+            let cloned_server_config = server.clone();
+            let local_thread = std::thread::Builder::new().name(format!("[{}]", server.address)).spawn(move || {
+                let server = CsctrlServer::csctrl_server(cloned_server_config, local_receiver);
+                server.main();
+            }).unwrap();
+
+            let server_container = CsctrlServerContainer {
+                thread: local_thread,
+                sender: local_sender,
+            };
+            self.servers.insert(server.address.to_string(), server_container);
         }
     }
 
