@@ -1,15 +1,12 @@
 use std::collections::VecDeque;
-use std::future::Future;
-use std::sync::OnceLock;
-use rcon::Connection;
-use tokio::net::TcpStream;
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc::error::TryRecvError;
 use crate::csctrl::types::CsctrlServerSetup;
+use crate::rcon::connection::RconConnection;
 
 pub struct CsctrlServer {
     config: CsctrlServerSetup,
-    rcon_connection: OnceLock<Connection<TcpStream>>,
+    rcon_connection: crate::rcon::connection::RconConnection,
     thread_receiver: tokio::sync::mpsc::UnboundedReceiver<String>,
     thread_sender: tokio::sync::mpsc::UnboundedSender<String>
 }
@@ -17,8 +14,8 @@ pub struct CsctrlServer {
 impl CsctrlServer {
     pub fn csctrl_server(setup: CsctrlServerSetup, sender: tokio::sync::mpsc::UnboundedSender<String>, receiver: tokio::sync::mpsc::UnboundedReceiver<String>) -> CsctrlServer {
         CsctrlServer {
+            rcon_connection: RconConnection::create_rcon_connection(&setup.address, &setup.rcon_password),
             config: setup,
-            rcon_connection: OnceLock::new(),
             thread_receiver: receiver,
             thread_sender: sender,
         }
@@ -26,14 +23,17 @@ impl CsctrlServer {
 
     pub fn main(&mut self) {
         tracing::debug!("Thread created");
+        Runtime::new().unwrap().block_on(self.try_rcon_connection());
+
         loop {
             if !self.tick() { break; };
         }
+
         tracing::debug!("Thread shutting down");
     }
 
-    pub fn init(&mut self) {
-        Runtime::new().unwrap().block_on(self.init_rcon_connection());
+    async fn try_rcon_connection(&mut self) {
+        self.rcon_connection.init_rcon_connection().await;
     }
 
     pub fn tick(&mut self) -> bool{
@@ -68,23 +68,9 @@ impl CsctrlServer {
         }
     }
 
-    async fn init_rcon_connection(&self) {
-        match <Connection<TcpStream>>::builder()
-            .connect(&self.config.address, &self.config.rcon_password).await {
-            Ok(connection) => {
-                self.rcon_connection.get_or_init(|| connection);
-            }
-            Err(error) => {
-                tracing::error!("Can't establish a RCON connection to rcon address '{}' with password '{}'. Error: {}",
-                    self.config.address, self.config.rcon_password, error);
-                return;
-            }
-        };
-    }
-
     pub async fn rcon(&self, command: String) {
-        if !false {
-            tracing::error!("No existing rcon connection for server '{}'", self.config.address);
+        if !self.rcon_connection.get_is_valid() {
+            tracing::error!("No existing rcon connection to execute command 'rcon {}'", command);
             return;
         }
         /*let connection = self.rcon_connection.get_mut().unwrap();
