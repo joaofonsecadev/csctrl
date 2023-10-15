@@ -1,3 +1,4 @@
+use std::future::Future;
 use tokio::io::AsyncWriteExt;
 use tokio::net::TcpStream;
 use crate::rcon::packet::{RconPacket, RconPacketType};
@@ -7,7 +8,6 @@ pub struct RconConnection {
     password: String,
     current_packet_id: i32,
     is_valid: bool,
-    tcp_stream: std::sync::OnceLock<tokio::net::TcpStream>,
 }
 
 impl RconConnection {
@@ -17,26 +17,34 @@ impl RconConnection {
             password: password.to_string(),
             current_packet_id: -1,
             is_valid: false,
-            tcp_stream: std::sync::OnceLock::new(),
         }
     }
 
     pub async fn init_rcon_connection(&mut self) {
-        match tokio::net::TcpStream::connect(&self.address).await {
-            Ok(stream) => {
-                self.tcp_stream.get_or_init(|| stream);
-                tracing::trace!("TCP stream established");
-            }
+        let mut tcp_stream = match self.get_tcp_stream().await {
+            Ok(stream) => { stream }
             Err(error) => {
-                tracing::error!("Can't establish a TCP stream to the server. Error: {}", error);
+                tracing::error!(error);
                 return;
             }
-        }
-        self.authenticate().await;
+        };
+        self.authenticate(&mut tcp_stream).await;
+        tcp_stream.shutdown().await.expect("Failed to shutdown TCP stream during init");
     }
 
-    async fn authenticate(&mut self) {
-        if self.send_packet(RconPacketType::Auth, &self.password.clone()).await < 0 {
+    async fn get_tcp_stream(&self) -> Result<TcpStream, String> {
+        return match tokio::net::TcpStream::connect(&self.address).await {
+            Ok(stream) => {
+                Ok(stream)
+            }
+            Err(error) => {
+                Err(format!("Can't establish a TCP stream to the server. Error: {}", error))
+            }
+        };
+    }
+
+    async fn authenticate(&mut self, tcp_stream: &mut TcpStream) {
+        if self.send_packet(tcp_stream, RconPacketType::Auth, &self.password.clone()).await < 0 {
             tracing::error!("Failed authentication: can't send authentication packet");
             return;
         }
@@ -47,7 +55,7 @@ impl RconConnection {
                 tracing::error!("Failed authentication: receiving response timed out");
                 return;
             }
-            let received_packet = self.receive_packet().await;
+            let received_packet = self.receive_packet(tcp_stream).await;
             if received_packet.get_type() == RconPacketType::AuthResponse {
                 break received_packet
             }
@@ -58,16 +66,24 @@ impl RconConnection {
             return;
         }
 
-        tracing::trace!("Rcon authentication successful");
         self.is_valid = true;
     }
 
     pub async fn execute_command(&mut self, command: &str) -> Result<String, String> {
-        if self.send_packet(RconPacketType::ExecCommand, command).await < 0 {
+        let mut tcp_stream = match self.get_tcp_stream().await {
+            Ok(stream) => { stream }
+            Err(error) => {
+                tracing::error!(error);
+                return Err(error.to_string());
+            }
+        };
+        self.authenticate(&mut tcp_stream).await;
+
+        if self.send_packet(&mut tcp_stream, RconPacketType::ExecCommand, command).await < 0 {
             return Err("Failed command execution: can't send command packet".to_string());
         }
 
-        let empty_request_id = self.send_packet(RconPacketType::ExecCommand, "echo CsctrlTerminatingRconCommand").await;
+        let empty_request_id = self.send_packet(&mut tcp_stream, RconPacketType::ExecCommand, "echo CsctrlTerminatingRconCommand").await;
         if empty_request_id < 0 {
             return Err("Failed command execution: can't send empty command packet".to_string());
         }
@@ -79,8 +95,9 @@ impl RconConnection {
                 return Err("Failed command execution: didn't receive response before timeout".to_string());
             }
 
-            let received_packet = self.receive_packet().await;
+            let received_packet = self.receive_packet(&mut tcp_stream).await;
             if received_packet.get_body() == "CsctrlTerminatingRconCommand\n" {
+                tcp_stream.shutdown().await.expect("Failed to shutdown TCP stream after sending a packet");
                 return Ok(response_body);
             }
 
@@ -88,12 +105,11 @@ impl RconConnection {
         }
     }
 
-    async fn send_packet(&mut self, packet_type: RconPacketType, body: &str) -> i32 {
+    async fn send_packet(&mut self, tcp_stream: &mut TcpStream, packet_type: RconPacketType, body: &str) -> i32 {
         let id = self.get_new_packet_id();
         let packet = RconPacket::new(id, packet_type, body.to_string());
         let serialized_packet = packet.serialize();
 
-        let tcp_stream = self.tcp_stream.get_mut().unwrap();
         match tcp_stream.write_all(&serialized_packet).await {
             Ok(_) => { }
             Err(error) => {
@@ -105,8 +121,8 @@ impl RconConnection {
         return id;
     }
 
-    async fn receive_packet(&mut self) -> RconPacket {
-        return RconPacket::deserialize(self.tcp_stream.get_mut().unwrap()).await;
+    async fn receive_packet(&mut self, tcp_stream: &mut TcpStream) -> RconPacket {
+        return RconPacket::deserialize(tcp_stream).await;
     }
 
     fn get_new_packet_id(&mut self) -> i32 {

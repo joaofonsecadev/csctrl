@@ -65,10 +65,10 @@ impl CsctrlServer {
                 split_string.pop_front().unwrap();
                 let mut arguments = "".to_string();
                 for word in split_string {
-                    arguments.push_str(word);
+                    arguments.push_str(format!("{} ", word).as_str());
                 }
 
-                Runtime::new().unwrap().block_on(self.rcon(arguments));
+                Runtime::new().unwrap().block_on(self.rcon(arguments.trim().to_string()));
             }
             &_ => {}
         }
