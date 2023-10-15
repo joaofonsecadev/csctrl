@@ -44,6 +44,12 @@ impl CsctrlServer {
                     tracing::error!("Thread has no sender counterpart and has detached. Closing itself");
                     return false;
                 }
+
+                if error == TryRecvError::Empty {
+                    return true;
+                }
+
+                tracing::error!("Can't receive message from main thread. Error: {}", error);
             }
         }
         return true;

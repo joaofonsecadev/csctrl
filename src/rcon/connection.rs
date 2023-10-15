@@ -1,4 +1,5 @@
 use tokio::io::AsyncWriteExt;
+use tokio::net::TcpStream;
 use crate::rcon::packet::{RconPacket, RconPacketType};
 
 pub struct RconConnection {
@@ -57,6 +58,7 @@ impl RconConnection {
             return;
         }
 
+        tracing::trace!("Rcon authentication successful");
         self.is_valid = true;
     }
 
@@ -65,7 +67,7 @@ impl RconConnection {
             return Err("Failed command execution: can't send command packet".to_string());
         }
 
-        let empty_request_id = self.send_packet(RconPacketType::ResponseValue, "").await;
+        let empty_request_id = self.send_packet(RconPacketType::ExecCommand, "echo CsctrlTerminatingRconCommand").await;
         if empty_request_id < 0 {
             return Err("Failed command execution: can't send empty command packet".to_string());
         }
@@ -78,7 +80,7 @@ impl RconConnection {
             }
 
             let received_packet = self.receive_packet().await;
-            if received_packet.get_id() == empty_request_id {
+            if received_packet.get_body() == "CsctrlTerminatingRconCommand\n" {
                 return Ok(response_body);
             }
 
@@ -90,6 +92,7 @@ impl RconConnection {
         let id = self.get_new_packet_id();
         let packet = RconPacket::new(id, packet_type, body.to_string());
         let serialized_packet = packet.serialize();
+
         let tcp_stream = self.tcp_stream.get_mut().unwrap();
         match tcp_stream.write_all(&serialized_packet).await {
             Ok(_) => { }
@@ -98,6 +101,7 @@ impl RconConnection {
                 return -999;
             }
         };
+
         return id;
     }
 

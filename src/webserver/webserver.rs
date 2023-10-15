@@ -57,5 +57,5 @@ async fn receive_cslog(request: axum::http::Request<axum::body::Body>) {
     let request_body = std::str::from_utf8(&hyper::body::to_bytes(request.into_body())
         .await.unwrap()).unwrap().to_string();
 
-    tracing::trace!("Received CS2 log. Content:\nHeaders\n{}\nBody\n{}", request_headers, request_body);
+    //tracing::trace!("Received CS2 log. Content:\nHeaders\n{}\nBody\n{}", request_headers, request_body);
 }

@@ -1,6 +1,7 @@
 use tokio::io::AsyncReadExt;
+use tracing_subscriber::fmt::format;
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum RconPacketType {
     Auth,
     AuthResponse,
@@ -87,7 +88,7 @@ impl RconPacket {
         };
 
         let body_size = size - 10;
-        let mut body_buffer = Vec::with_capacity(body_size as usize);
+        let mut body_buffer = vec![0u8; body_size as usize];
 
         let body = match incoming_stream.read_exact(&mut body_buffer).await {
             Ok(_) => { match String::from_utf8(body_buffer) {
@@ -118,6 +119,15 @@ impl RconPacket {
             packet_type: RconPacketType::from_i32(packet_type, true),
             body,
         }
+    }
+
+    pub fn get_packet_as_string(&self) -> String {
+        let mut output = "".to_string();
+        output += format!("Size '{}'; ", self.size).as_str();
+        output += format!("ID '{}'; ", self.id).as_str();
+        output += format!("Type '{:?}'; ", self.packet_type).as_str();
+        output += format!("Body '{}'; ", self.body).as_str();
+        return output;
     }
 
     pub fn get_id(&self) -> i32 { self.id }
