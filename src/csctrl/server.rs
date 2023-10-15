@@ -49,7 +49,7 @@ impl CsctrlServer {
         return true;
     }
 
-    fn handle_thread_message(&self, message: String) {
+    fn handle_thread_message(&mut self, message: String) {
         tracing::trace!("Received message: '{}'", message);
         let mut split_string: VecDeque<&str> = message.split(" ").collect();
         let first_word = split_string[0];
@@ -68,21 +68,21 @@ impl CsctrlServer {
         }
     }
 
-    pub async fn rcon(&self, command: String) {
+    pub async fn rcon(&mut self, command: String) {
         if !self.rcon_connection.get_is_valid() {
             tracing::error!("No existing rcon connection to execute command 'rcon {}'", command);
             return;
         }
-        /*let connection = self.rcon_connection.get_mut().unwrap();
-        let response = match connection.cmd(&command).await {
+
+        let response = match self.rcon_connection.execute_command(&command).await {
             Ok(res) => { res }
             Err(error) => {
-                tracing::error!("Error from rcon response: {}", error);
+                tracing::error!("Error while attempting rcon command. {}", error);
                 return;
             }
         };
 
-        tracing::trace!("Rcon response:\n{}", response);*/
+        tracing::trace!("Rcon response:\n{}", response);
     }
 
     pub fn get_setup(&self) -> &CsctrlServerSetup { return &self.config }

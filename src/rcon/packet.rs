@@ -1,6 +1,6 @@
 use tokio::io::AsyncReadExt;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum RconPacketType {
     Auth,
     AuthResponse,
@@ -61,7 +61,7 @@ impl RconPacket {
     pub async fn deserialize<T: Unpin + tokio::io::AsyncRead>(incoming_stream :&mut T) -> RconPacket {
         let mut buffer = [0u8; 4];
 
-        let error_packet = RconPacket::new(-90, RconPacketType::Undefined(-90), "".to_string());
+        let error_packet = RconPacket::new(-999, RconPacketType::Undefined(-90), "".to_string());
         let size = match incoming_stream.read_exact(&mut buffer).await {
             Ok(_) => { i32::from_le_bytes(buffer) }
             Err(error) => {
@@ -106,7 +106,7 @@ impl RconPacket {
         let mut terminating_buffer = [0u8; 2];
         match incoming_stream.read_exact(&mut terminating_buffer).await {
             Ok(_) => {}
-            Err(_) => {
+            Err(error) => {
                 tracing::error!("Can't deserialize terminating zeros of packet. Error: {}", error);
                 return error_packet;
             }
