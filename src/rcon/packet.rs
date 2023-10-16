@@ -1,5 +1,4 @@
 use tokio::io::AsyncReadExt;
-use tracing_subscriber::fmt::format;
 
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum RconPacketType {

@@ -2,20 +2,15 @@ use std::io::{stdout, Stdout};
 use crossterm::ExecutableCommand;
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen};
 use ratatui::backend::{Backend, CrosstermBackend};
-use crate::csctrl::types::CsctrlServerSetup;
 use std::cell::OnceCell;
-use std::ops::Deref;
-use std::time::Duration;
 use clap::Parser;
 use crossterm::event::{Event, KeyCode, KeyEventKind};
 use ratatui::Frame;
 use ratatui::layout::{Constraint, Layout};
-use ratatui::prelude::{Alignment, Direction};
-use ratatui::style::{Color, Style, Stylize};
-use ratatui::text::Text;
+use ratatui::prelude::Direction;
+use ratatui::style::Stylize;
 use ratatui::widgets::{Block, Borders, Paragraph};
 use crate::ClapParser;
-use crate::csctrl::server::CsctrlServer;
 
 struct TerminalUiState {
     selected_server_address: String,

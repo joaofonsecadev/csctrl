@@ -1,4 +1,3 @@
-use std::future::Future;
 use tokio::io::AsyncWriteExt;
 use tokio::net::TcpStream;
 use crate::rcon::packet::{RconPacket, RconPacketType};
