@@ -1,17 +1,25 @@
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
+use std::string::ToString;
 use std::sync::{OnceLock, RwLock};
 use crate::{csctrl, system};
 use crate::commands::base::Command;
 use crate::commands::csctrl_generate_server::CsctrlGenerateServer;
 use crate::commands::rcon::Rcon;
 use crate::csctrl::server::CsctrlServer;
-use crate::csctrl::types::{CsctrlDataParent, CsctrlServerContainer};
+use crate::csctrl::types::{CsctrlDataParent, CsctrlDataServer, CsctrlDataTeam, CsctrlMatchStatus, CsctrlServerContainer, CsctrlServerSetup};
 use crate::terminal::terminal::Terminal;
 use crate::webserver::webserver::Webserver;
+
+pub const FORMAT_SEPARATOR: &str = "<csctrlseptarget>";
 
 pub fn get_command_messenger() -> &'static RwLock<Vec<String>> {
     static COMMAND_MESSENGER: OnceLock<RwLock<Vec<String>>> = OnceLock::new();
     COMMAND_MESSENGER.get_or_init(|| RwLock::new(vec![]))
+}
+
+pub fn get_weblogs_messenger() -> &'static RwLock<VecDeque<String>> {
+    static WEBLOGS_MESSENGER: OnceLock<RwLock<VecDeque<String>>> = OnceLock::new();
+    WEBLOGS_MESSENGER.get_or_init(|| RwLock::new(VecDeque::new()))
 }
 
 pub fn get_registered_commands() -> &'static RwLock<HashMap<String, Box<dyn Command + Sync + Send>>> {
@@ -20,8 +28,8 @@ pub fn get_registered_commands() -> &'static RwLock<HashMap<String, Box<dyn Comm
 }
 
 pub fn get_data() -> &'static RwLock<CsctrlDataParent> {
-    static CSCTRL_DATA: OnceLock<RwLock<CsctrlDataParent>> = OnceLock::new();
-    CSCTRL_DATA.get_or_init(|| RwLock::new(CsctrlDataParent { servers: vec![] }))
+    static CSCTRL_READ_DATA: OnceLock<RwLock<CsctrlDataParent>> = OnceLock::new();
+    CSCTRL_READ_DATA.get_or_init(|| RwLock::new(CsctrlDataParent { servers: HashMap::new() }))
 }
 
 pub struct Csctrl {
@@ -64,9 +72,10 @@ impl Csctrl {
         else { self.requested_exit = true; }
 
         self.process_command_messenger();
-        for (_sv_address, server) in &self.servers {
-            //server.tick();
-        }
+        self.process_weblog_messenger();
+
+        let data = &get_data().read().unwrap().servers;
+        let server = &data;
     }
 
     pub fn shutdown(&self) {
@@ -97,6 +106,23 @@ impl Csctrl {
                 sender: local_sender,
             };
             self.servers.insert(server.address.to_string(), server_container);
+
+            get_data().write().unwrap().servers.insert(server.address.to_string(), CsctrlDataServer {
+                config: server.clone(),
+                is_online: false,
+                team_a: CsctrlDataTeam {
+                    name: "".to_string(),
+                    score: 0,
+                    players: vec![],
+                },
+                team_b: CsctrlDataTeam {
+                    name: "".to_string(),
+                    score: 0,
+                    players: vec![],
+                },
+                status: CsctrlMatchStatus::NotStarted,
+                logs: vec![],
+            });
         }
     }
 
@@ -117,6 +143,26 @@ impl Csctrl {
 
         let command = get_command_messenger().write().unwrap().pop().unwrap();
         self.handle_command(command);
+    }
+
+    fn process_weblog_messenger(&mut self) {
+        let is_weblog_empty = get_weblogs_messenger().read().unwrap().is_empty();
+        if is_weblog_empty { return; }
+
+        let weblog = get_weblogs_messenger().write().unwrap().pop_front().unwrap();
+        let split_weblog: Vec<&str> = weblog.split(FORMAT_SEPARATOR).collect();
+        let address = split_weblog[0].replace("\"", "");
+        let logs = split_weblog[1];
+        let weblog_lines: Vec<&str> = logs.split("\n").collect();
+
+        for line in weblog_lines {
+            if line.contains("CsctrlTerminatingRconCommand") { return; }
+            let mut csctrl_data_servers = &mut get_data().write().unwrap().servers;
+            let mut data_server = csctrl_data_servers.get_mut(&address);
+            if data_server.is_none() { return; }
+
+            data_server.unwrap().logs.push(line.to_string());
+        }
     }
 
     fn handle_command(&mut self, command_string: String) {

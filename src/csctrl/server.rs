@@ -80,13 +80,16 @@ impl CsctrlServer {
             return;
         }
 
-        let response = match self.rcon_connection.execute_command(&command).await {
+        let mut response = match self.rcon_connection.execute_command(&command).await {
             Ok(res) => { res }
             Err(error) => {
                 tracing::error!("Error while attempting rcon command. {}", error);
                 return;
             }
         };
+
+        // Remove new line at the end
+        response.pop();
 
         tracing::trace!("Rcon response:\n{}", response);
     }

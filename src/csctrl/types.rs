@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct CsctrlConfig {
     pub chat_signature: String,
@@ -26,7 +28,7 @@ pub struct MatchSetup {
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct TeamSettings {
     pub name: String,
-    pub members_steam_64: Vec<String>
+    pub members_steam_3: Vec<String>
 }
 
 pub struct CsctrlServerContainer {
@@ -35,15 +37,16 @@ pub struct CsctrlServerContainer {
 }
 
 pub struct CsctrlDataParent {
-    pub servers: Vec<CsctrlDataServer>
+    pub servers: HashMap<String, CsctrlDataServer>
 }
 
 pub struct CsctrlDataServer {
-    pub setup: CsctrlServerSetup,
+    pub config: CsctrlServerSetup,
     pub is_online: bool,
     pub team_a: CsctrlDataTeam,
     pub team_b: CsctrlDataTeam,
-    pub status: CsctrlMatchStatus
+    pub status: CsctrlMatchStatus,
+    pub logs: Vec<String>
 }
 
 pub struct CsctrlDataPlayer {

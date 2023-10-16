@@ -49,13 +49,18 @@ async fn boot_thread_restapi(address: String, router: Router) {
 }
 
 async fn receive_cslog(request: axum::http::Request<axum::body::Body>) {
-    let mut request_headers = "".to_string();
-    for (key, value) in request.headers().iter() {
-        request_headers += &format!("{}{:?}\n", key, value);
-    }
+    let cloned_request_headers = request.headers().clone();
+    let request_address = cloned_request_headers.get("x-server-addr");
+    if request_address.is_none() { return; }
 
     let request_body = std::str::from_utf8(&hyper::body::to_bytes(request.into_body())
         .await.unwrap()).unwrap().to_string();
 
-    //tracing::trace!("Received CS2 log. Content:\nHeaders\n{}\nBody\n{}", request_headers, request_body);
+    let mut weblog_message = format!("{:?}{}{}", request_address.unwrap(), crate::csctrl::csctrl::FORMAT_SEPARATOR, request_body);
+
+    // Remove new line character from the end
+    weblog_message.pop();
+
+    tracing::trace!("Received CS2 log. Content:\n{}", weblog_message);
+    crate::csctrl::csctrl::get_weblogs_messenger().write().unwrap().push_back(weblog_message);
 }
