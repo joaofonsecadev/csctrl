@@ -36,31 +36,36 @@ pub struct CsctrlServerContainer {
     pub sender: tokio::sync::mpsc::UnboundedSender<String>
 }
 
+#[derive(Clone)]
 pub struct CsctrlDataParent {
     pub servers: HashMap<String, CsctrlDataServer>
 }
 
+#[derive(Clone)]
 pub struct CsctrlDataServer {
     pub config: CsctrlServerSetup,
     pub is_online: bool,
-    pub team_a: CsctrlDataTeam,
-    pub team_b: CsctrlDataTeam,
+    pub team_ct: CsctrlDataTeam,
+    pub team_t: CsctrlDataTeam,
     pub status: CsctrlMatchStatus,
     pub logs: Vec<String>
 }
 
+#[derive(Clone)]
 pub struct CsctrlDataPlayer {
     pub name: String,
-    pub steam64: String,
+    pub steam3: String,
     pub is_ready: bool,
 }
 
+#[derive(Clone)]
 pub struct CsctrlDataTeam {
     pub name: String,
     pub score: u8,
     pub players: Vec<CsctrlDataPlayer>
 }
 
+#[derive(Clone)]
 pub enum CsctrlMatchStatus {
     NotStarted,
     KnifeRound,

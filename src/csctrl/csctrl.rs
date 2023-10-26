@@ -1,4 +1,5 @@
 use std::collections::{HashMap, VecDeque};
+use std::ops::Deref;
 use std::string::ToString;
 use std::sync::{OnceLock, RwLock};
 use crate::{csctrl, system};
@@ -12,9 +13,9 @@ use crate::webserver::webserver::Webserver;
 
 pub const FORMAT_SEPARATOR: &str = "<csctrlseptarget>";
 
-pub fn get_command_messenger() -> &'static RwLock<Vec<String>> {
-    static COMMAND_MESSENGER: OnceLock<RwLock<Vec<String>>> = OnceLock::new();
-    COMMAND_MESSENGER.get_or_init(|| RwLock::new(vec![]))
+pub fn get_command_messenger() -> &'static RwLock<VecDeque<String>> {
+    static COMMAND_MESSENGER: OnceLock<RwLock<VecDeque<String>>> = OnceLock::new();
+    COMMAND_MESSENGER.get_or_init(|| RwLock::new(VecDeque::new()))
 }
 
 pub fn get_weblogs_messenger() -> &'static RwLock<VecDeque<String>> {
@@ -39,7 +40,8 @@ pub struct Csctrl {
     terminal: Terminal,
     pub servers: HashMap<String, CsctrlServerContainer>,
     server_threads_receiver: OnceLock<tokio::sync::mpsc::UnboundedReceiver<String>>,
-    server_threads_sender: OnceLock<tokio::sync::mpsc::UnboundedSender<String>>
+    server_threads_sender: OnceLock<tokio::sync::mpsc::UnboundedSender<String>>,
+    is_data_dirty: bool,
 }
 
 impl Csctrl {
@@ -51,7 +53,8 @@ impl Csctrl {
             terminal: Terminal::terminal(),
             servers: HashMap::new(),
             server_threads_receiver: OnceLock::new(),
-            server_threads_sender: OnceLock::new()
+            server_threads_sender: OnceLock::new(),
+            is_data_dirty: false,
         }
     }
 
@@ -74,8 +77,7 @@ impl Csctrl {
         self.process_command_messenger();
         self.process_weblog_messenger();
 
-        let data = &get_data().read().unwrap().servers;
-        let server = &data;
+        if self.is_data_dirty { self.handle_dirty_data(); }
     }
 
     pub fn shutdown(&self) {
@@ -110,12 +112,12 @@ impl Csctrl {
             get_data().write().unwrap().servers.insert(server.address.to_string(), CsctrlDataServer {
                 config: server.clone(),
                 is_online: false,
-                team_a: CsctrlDataTeam {
+                team_ct: CsctrlDataTeam {
                     name: "".to_string(),
                     score: 0,
                     players: vec![],
                 },
-                team_b: CsctrlDataTeam {
+                team_t: CsctrlDataTeam {
                     name: "".to_string(),
                     score: 0,
                     players: vec![],
@@ -141,7 +143,7 @@ impl Csctrl {
         let is_command_messenger_empty = get_command_messenger().read().unwrap().is_empty();
         if is_command_messenger_empty { return; }
 
-        let command = get_command_messenger().write().unwrap().pop().unwrap();
+        let command = get_command_messenger().write().unwrap().pop_front().unwrap();
         self.handle_command(command);
     }
 
@@ -160,8 +162,19 @@ impl Csctrl {
             let mut csctrl_data_servers = &mut get_data().write().unwrap().servers;
             let mut data_server = csctrl_data_servers.get_mut(&address);
             if data_server.is_none() { return; }
+            self.handle_weblog(data_server.unwrap(), line);
+        }
+    }
 
-            data_server.unwrap().logs.push(line.to_string());
+    fn handle_weblog(&mut self, server_data: &mut CsctrlDataServer, log_line: &str) {
+        self.is_data_dirty = true;
+        server_data.logs.push(log_line.to_string());
+    }
+
+    fn handle_dirty_data(&mut self) {
+        self.is_data_dirty = false;
+        if *self.terminal.is_terminal_active() {
+            self.terminal.update_cached_server_data(get_data().read().unwrap().deref().clone());
         }
     }
 

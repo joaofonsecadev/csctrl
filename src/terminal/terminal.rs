@@ -11,16 +11,19 @@ use ratatui::prelude::Direction;
 use ratatui::style::Stylize;
 use ratatui::widgets::{Block, Borders, Paragraph};
 use crate::ClapParser;
+use crate::csctrl::types::CsctrlDataParent;
 
 struct TerminalUiState {
     selected_server_address: String,
     input_box: String,
+    last_type_time_secs: u64
 }
 
 pub struct Terminal {
     terminal_ui: OnceCell<ratatui::Terminal<CrosstermBackend<Stdout>>>,
     is_terminal_active: bool,
     terminal_ui_state: TerminalUiState,
+    cached_server_data: CsctrlDataParent,
 }
 
 impl Terminal {
@@ -29,9 +32,11 @@ impl Terminal {
             terminal_ui_state: TerminalUiState {
                 selected_server_address: "89.114.134.177:27015".to_string(),
                 input_box: "".to_string(),
+                last_type_time_secs: 0,
             },
             terminal_ui: OnceCell::new(),
             is_terminal_active: false,
+            cached_server_data: CsctrlDataParent { servers: Default::default() },
         }
     }
     
@@ -51,8 +56,12 @@ impl Terminal {
         self.handle_events();
 
         self.terminal_ui.get_mut().unwrap().draw(|frame| {
-            ui(&mut self.terminal_ui_state, frame);
+            ui(&mut self.terminal_ui_state, &mut self.cached_server_data, frame);
         }).unwrap();
+    }
+
+    pub fn update_cached_server_data(&mut self, new_server_data: CsctrlDataParent) {
+        self.cached_server_data = new_server_data;
     }
 
     fn handle_events(&mut self) {
@@ -64,17 +73,19 @@ impl Terminal {
                     if !validate_input_char(&value) { return; }
                     if key.kind != KeyEventKind::Press { return; }
                     &self.terminal_ui_state.input_box.push(value);
+                    self.terminal_ui_state.last_type_time_secs = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs();
                 }
                 KeyCode::Backspace => {
                     if key.kind != KeyEventKind::Press { return; }
                     &self.terminal_ui_state.input_box.pop();
+                    self.terminal_ui_state.last_type_time_secs = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs();
                 }
                 KeyCode::Enter => {
                     if key.kind != KeyEventKind::Press { return; }
                     let input = format!("<csctrlseptarget>{}<csctrlseptarget>{}", self.terminal_ui_state.selected_server_address, self.terminal_ui_state.input_box.to_string());
                     if input.is_empty() { return; }
                     self.terminal_ui_state.input_box.clear();
-                    crate::csctrl::csctrl::get_command_messenger().write().unwrap().push(input);
+                    crate::csctrl::csctrl::get_command_messenger().write().unwrap().push_back(input);
                 }
                 KeyCode::Esc => { self.close_terminal(); }
                 _ => {}
@@ -104,23 +115,44 @@ fn validate_input_char(char: &char) -> bool {
     return true;
 }
 
-fn ui(state: &mut TerminalUiState, frame: &mut Frame<CrosstermBackend<Stdout>>) {
+fn ui(state: &mut TerminalUiState, data: &mut CsctrlDataParent, frame: &mut Frame<CrosstermBackend<Stdout>>) {
     let terminal_height = frame.size().height;
 
     let layout_main = Layout::default()
         .direction(Direction::Vertical)
         .constraints(vec![
-            Constraint::Length(terminal_height - 1),
+            Constraint::Length(1),
+            Constraint::Length(terminal_height - 2),
             Constraint::Length(1),
         ])
         .split(frame.size());
 
-    frame.render_widget(Block::new().title("CSCTRL".red().bold().underlined()).borders(Borders::all()), layout_main[0]);
+    let layout_servers_active = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints(vec![
+            Constraint::Percentage(20),
+            Constraint::Percentage(80)
+        ])
+        .split(layout_main[1]);
+
+    let layout_active_logs = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints(vec![
+            Constraint::Percentage(70),
+            Constraint::Percentage(30)
+        ])
+        .split(layout_servers_active[1]);
+
+    frame.render_widget(Block::new().title("CSCTRL".red().bold().underlined()), layout_main[0]);
+
+    frame.render_widget(Block::new().title("Servers").borders(Borders::all()), layout_servers_active[0]);
+    frame.render_widget(Block::new().title("Active server data").borders(Borders::all()), layout_active_logs[0]);
+    frame.render_widget(Block::new().title("Logs").borders(Borders::all()), layout_active_logs[1]);
 
     let time_in_secs = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs();
-    let cursor = if time_in_secs % 2 == 0 { "█" } else { "" };
+    let cursor = if time_in_secs % 2 == 0 || time_in_secs - state.last_type_time_secs < 1 { "█" } else { "" };
     frame.render_widget(
         Paragraph::new(format!("> {}{}", state.input_box, cursor)),
-        layout_main[1]
+        layout_main[2]
     );
 }
