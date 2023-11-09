@@ -1,5 +1,5 @@
 <div align=center>
-  <img src="https://github.com/joaofonsecadev/csctrl/blob/main/docs/logo_big.png?raw=true" width=300/>
+  <img src="https://github.com/joaofonsecadev/csctrl/blob/main/docs/logo_big.png?raw=true" width=300 alt="CSCTRL logo"/>
   <br>
   🔊 cee-ess kuhn-trohl
   <h3>CSCTRL: The future of CS2 match management is here.</h3>
