@@ -1,7 +1,8 @@
 cmake_minimum_required(VERSION 3.21)
 
 set(SourceFiles
-    src/main.cpp
+        src/main.cpp
+        src/core/csctrl_minimal.h
 )
 
 project(csctrl LANGUAGES CXX)
