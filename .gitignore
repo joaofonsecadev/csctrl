@@ -1,4 +1,5 @@
 /.idea
 /bin
 /cmake-build-debug
+/build
 .DS_Store

@@ -4,7 +4,7 @@ set(SourceFiles
     src/main.cpp
 )
 
-project("csctrl" LANGUAGES CXX)
+project(csctrl LANGUAGES CXX)
 set_property(GLOBAL PROPERTY USE_FOLDERS TRUE)
 set(CMAKE_CXX_STANDARD          20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -26,5 +26,5 @@ foreach(SourceFile IN ITEMS ${SourceFiles})
     source_group(${GroupPath} FILES ${SourceFile})
 endforeach()
 
-add_executable("csctrl" ${SourceFiles})
-target_include_directories("csctrl" PUBLIC src/)
+add_executable(csctrl ${SourceFiles})
+target_include_directories(csctrl PUBLIC src/)
