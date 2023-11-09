@@ -14,6 +14,8 @@
   <li>RCON access to the servers</li>
   <li>Automatic CSTV recording and downloading</li>
 </ul>
-<h4>Project style guide</h4>
+<hr>
+<h2>Contributing</h2>
+<h3>Project style guide</h3>
 The folder structure is heavily inspired by <a src="https://github.com/vector-of-bool/pitchfork">Pitchfork</a>. <br>
 Code style is based on <a src="https://llvm.org/docs/CodingStandards.html">LLVM</a> with custom adjustments. <a src="https://clang.llvm.org/docs/ClangFormat.html">ClangFormat</a> ensures compliance.
