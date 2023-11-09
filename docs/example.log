@@ -1,0 +1,259 @@
+10/16/2023 - 17:53:57.450 - "smashon<2><[U:1:102286709]><CT>" say_team "teste"
+10/16/2023 - 17:53:59.075 - "smashon<2><[U:1:102286709]><CT>" say "teste"
+10/16/2023 - 17:54:14.606 - "smashon<2><[U:1:102286709]><CT>" disconnected (reason "NETWORK_DISCONNECT_DISCONNECT_BY_USER")
+10/16/2023 - 17:54:14.606 - "smashon<2><[U:1:102286709]><CT>" [-843 -770 119] committed suicide with "world"
+10/16/2023 - 17:54:14.606 - Team "TERRORIST" triggered "SFUI_Notice_Terrorists_Win" (CT "0") (T "1")
+10/16/2023 - 17:54:14.606 - Team "CT" scored "0" with "1" players
+10/16/2023 - 17:54:14.606 - Team "TERRORIST" scored "1" with "1" players
+10/16/2023 - 17:54:14.606 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 17:54:14.606 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 17:54:14.606 - MatchStatus: Score: 0:1 on map "de_dust2" RoundsPlayed: 1
+10/16/2023 - 17:54:14.606 - World triggered "Round_End"
+10/16/2023 - 17:54:14.606 - "Romanov<0><BOT><TERRORIST>" disconnected (reason "NETWORK_DISCONNECT_INVALID")
+10/16/2023 - 17:54:25.030 - "smashon<2><[U:1:102286709]><>" connected, address "89.114.134.177:50263"
+10/16/2023 - 17:54:25.045 - "Jaques<3><BOT><>" connected, address "none"
+10/16/2023 - 17:54:25.045 - "Jaques<3><BOT><>" entered the game
+10/16/2023 - 17:54:25.045 - "Jaques<3><BOT>" switched from team <Unassigned> to <TERRORIST>
+10/16/2023 - 17:54:25.045 - "Officer<4><BOT><>" connected, address "none"
+10/16/2023 - 17:54:25.045 - "Officer<4><BOT><>" entered the game
+10/16/2023 - 17:54:25.045 - "Officer<4><BOT>" switched from team <Unassigned> to <CT>
+10/16/2023 - 17:54:25.045 - Starting Freeze period
+10/16/2023 - 17:54:25.045 - "Jaques<3><BOT><TERRORIST>" triggered "Got_The_Bomb"
+10/16/2023 - 17:54:25.045 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 17:54:25.045 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 17:54:25.045 - MatchStatus: Score: 0:1 on map "de_dust2" RoundsPlayed: 1
+10/16/2023 - 17:54:26.411 - "smashon<2><[U:1:102286709]><>" STEAM USERID validated
+10/16/2023 - 17:54:28.342 - "smashon<2><[U:1:102286709]><>" entered the game
+10/16/2023 - 17:54:28.342 - "Officer<4><BOT><CT>" disconnected (reason "NETWORK_DISCONNECT_KICKED")
+10/16/2023 - 17:54:40.036 - World triggered "Round_Start"
+10/16/2023 - 17:54:55.051 - "Jaques<3><BOT><TERRORIST>" triggered "Dropped_The_Bomb"
+10/16/2023 - 17:56:13.956 - rcon from "89.114.134.177:53397": command "mp_swapteams"
+10/16/2023 - 17:56:13.956 - rcon from "89.114.134.177:53397": command "echo CsctrlTerminatingRconCommand"
+10/16/2023 - 17:56:14.724 - World triggered "Restart_Round_(1_second)"
+10/16/2023 - 17:56:14.724 - Team "CT" scored "0" with "1" players
+10/16/2023 - 17:56:14.724 - Team "TERRORIST" scored "1" with "1" players
+10/16/2023 - 17:56:15.723 - "Jaques<3><BOT>" switched from team <TERRORIST> to <CT>
+10/16/2023 - 17:56:15.723 - "smashon<2><[U:1:102286709]>" switched from team <CT> to <TERRORIST>
+10/16/2023 - 17:56:15.723 - Starting Freeze period
+10/16/2023 - 17:56:15.723 - World triggered "Match_Start" on "de_dust2"
+10/16/2023 - 17:56:15.723 - "smashon<2><[U:1:102286709]><TERRORIST>" triggered "Got_The_Bomb"
+10/16/2023 - 17:56:15.723 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 17:56:15.723 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 17:56:15.723 - MatchStatus: Score: 0:0 on map "de_dust2" RoundsPlayed: 0
+10/16/2023 - 17:56:30.723 - World triggered "Round_Start"
+10/16/2023 - 17:56:49.255 - "smashon<2><[U:1:102286709]><TERRORIST>" [-92 2117 -126] killed "Jaques<3><BOT><CT>" [334 2434 -120] with "glock" (headshot)
+10/16/2023 - 17:56:49.255 - Team "TERRORIST" triggered "SFUI_Notice_Terrorists_Win" (CT "0") (T "1")
+10/16/2023 - 17:56:49.255 - Team "CT" scored "0" with "2" players
+10/16/2023 - 17:56:49.255 - Team "TERRORIST" scored "1" with "1" players
+10/16/2023 - 17:56:49.255 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 17:56:49.255 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 17:56:49.255 - MatchStatus: Score: 0:1 on map "de_dust2" RoundsPlayed: 1
+10/16/2023 - 17:56:49.255 - World triggered "Round_End"
+10/16/2023 - 17:56:56.256 - Starting Freeze period
+10/16/2023 - 17:56:56.256 - "smashon<2><[U:1:102286709]><TERRORIST>" triggered "Got_The_Bomb"
+10/16/2023 - 17:56:56.256 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 17:56:56.256 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 17:56:56.256 - MatchStatus: Score: 0:1 on map "de_dust2" RoundsPlayed: 1
+10/16/2023 - 17:57:11.257 - World triggered "Round_Start"
+10/16/2023 - 17:57:32.976 - "smashon<2><[U:1:102286709]><TERRORIST>" [617 2107 -90] killed "Jaques<3><BOT><CT>" [258 2481 -121] with "glock" (headshot)
+10/16/2023 - 17:57:32.976 - Team "TERRORIST" triggered "SFUI_Notice_Terrorists_Win" (CT "0") (T "2")
+10/16/2023 - 17:57:32.976 - Team "CT" scored "0" with "3" players
+10/16/2023 - 17:57:32.976 - Team "TERRORIST" scored "2" with "1" players
+10/16/2023 - 17:57:32.976 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 17:57:32.976 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 17:57:32.976 - MatchStatus: Score: 0:2 on map "de_dust2" RoundsPlayed: 2
+10/16/2023 - 17:57:32.976 - World triggered "Round_End"
+10/16/2023 - 17:57:39.976 - Starting Freeze period
+10/16/2023 - 17:57:39.976 - "smashon<2><[U:1:102286709]><TERRORIST>" triggered "Got_The_Bomb"
+10/16/2023 - 17:57:39.976 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 17:57:39.976 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 17:57:39.976 - MatchStatus: Score: 0:2 on map "de_dust2" RoundsPlayed: 2
+10/16/2023 - 17:57:51.287 - rcon from "89.114.134.177:53456": command "sv_cheats 1"
+10/16/2023 - 17:57:51.287 - rcon from "89.114.134.177:53456": command "echo CsctrlTerminatingRconCommand"
+10/16/2023 - 17:57:51.302 - server_cvar: "sv_cheats" "true"
+10/16/2023 - 17:57:54.975 - World triggered "Round_Start"
+10/16/2023 - 17:57:59.264 - "smashon<2><[U:1:102286709]><TERRORIST>" [383 2437 -120] killed "Jaques<3><BOT><CT>" [334 2434 -120] with "knife_skeleton"
+10/16/2023 - 17:57:59.264 - Team "TERRORIST" triggered "SFUI_Notice_Terrorists_Win" (CT "0") (T "3")
+10/16/2023 - 17:57:59.264 - Team "CT" scored "0" with "3" players
+10/16/2023 - 17:57:59.264 - Team "TERRORIST" scored "3" with "1" players
+10/16/2023 - 17:57:59.264 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 17:57:59.264 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 17:57:59.264 - MatchStatus: Score: 0:3 on map "de_dust2" RoundsPlayed: 3
+10/16/2023 - 17:57:59.264 - World triggered "Round_End"
+10/16/2023 - 17:58:06.246 - Starting Freeze period
+10/16/2023 - 17:58:06.246 - "smashon<2><[U:1:102286709]><TERRORIST>" triggered "Got_The_Bomb"
+10/16/2023 - 17:58:06.246 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 17:58:06.246 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 17:58:06.246 - MatchStatus: Score: 0:3 on map "de_dust2" RoundsPlayed: 3
+10/16/2023 - 17:58:21.245 - World triggered "Round_Start"
+10/16/2023 - 17:58:25.502 - "smashon<2><[U:1:102286709]><TERRORIST>" [169 2467 -133] killed "Jaques<3><BOT><CT>" [182 2439 -121] with "knife_skeleton"
+10/16/2023 - 17:58:25.502 - Team "TERRORIST" triggered "SFUI_Notice_Terrorists_Win" (CT "0") (T "4")
+10/16/2023 - 17:58:25.502 - Team "CT" scored "0" with "3" players
+10/16/2023 - 17:58:25.502 - Team "TERRORIST" scored "4" with "1" players
+10/16/2023 - 17:58:25.502 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 17:58:25.502 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 17:58:25.502 - MatchStatus: Score: 0:4 on map "de_dust2" RoundsPlayed: 4
+10/16/2023 - 17:58:25.502 - World triggered "Round_End"
+10/16/2023 - 17:58:32.491 - Starting Freeze period
+10/16/2023 - 17:58:32.491 - "smashon<2><[U:1:102286709]><TERRORIST>" triggered "Got_The_Bomb"
+10/16/2023 - 17:58:32.491 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 17:58:32.491 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 17:58:32.491 - MatchStatus: Score: 0:4 on map "de_dust2" RoundsPlayed: 4
+10/16/2023 - 17:58:47.490 - World triggered "Round_Start"
+10/16/2023 - 17:58:52.292 - "smashon<2><[U:1:102286709]><TERRORIST>" [123 2347 -116] killed "Jaques<3><BOT><CT>" [160 2370 -120] with "knife_skeleton"
+10/16/2023 - 17:58:52.292 - Team "TERRORIST" triggered "SFUI_Notice_Terrorists_Win" (CT "0") (T "5")
+10/16/2023 - 17:58:52.292 - Team "CT" scored "0" with "3" players
+10/16/2023 - 17:58:52.292 - Team "TERRORIST" scored "5" with "1" players
+10/16/2023 - 17:58:52.292 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 17:58:52.292 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 17:58:52.292 - MatchStatus: Score: 0:5 on map "de_dust2" RoundsPlayed: 5
+10/16/2023 - 17:58:52.292 - World triggered "Round_End"
+10/16/2023 - 17:58:59.295 - Starting Freeze period
+10/16/2023 - 17:58:59.295 - "smashon<2><[U:1:102286709]><TERRORIST>" triggered "Got_The_Bomb"
+10/16/2023 - 17:58:59.295 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 17:58:59.295 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 17:58:59.295 - MatchStatus: Score: 0:5 on map "de_dust2" RoundsPlayed: 5
+10/16/2023 - 17:59:14.294 - World triggered "Round_Start"
+10/16/2023 - 17:59:21.268 - "smashon<2><[U:1:102286709]><TERRORIST>" [411 2336 -128] killed "Jaques<3><BOT><CT>" [351 2353 -120] with "knife_skeleton"
+10/16/2023 - 17:59:21.268 - Team "TERRORIST" triggered "SFUI_Notice_Terrorists_Win" (CT "0") (T "6")
+10/16/2023 - 17:59:21.268 - Team "CT" scored "0" with "3" players
+10/16/2023 - 17:59:21.268 - Team "TERRORIST" scored "6" with "1" players
+10/16/2023 - 17:59:21.268 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 17:59:21.268 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 17:59:21.268 - MatchStatus: Score: 0:6 on map "de_dust2" RoundsPlayed: 6
+10/16/2023 - 17:59:21.268 - World triggered "Round_End"
+10/16/2023 - 17:59:28.258 - Starting Freeze period
+10/16/2023 - 17:59:28.258 - "smashon<2><[U:1:102286709]><TERRORIST>" triggered "Got_The_Bomb"
+10/16/2023 - 17:59:28.258 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 17:59:28.258 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 17:59:28.258 - MatchStatus: Score: 0:6 on map "de_dust2" RoundsPlayed: 6
+10/16/2023 - 17:59:43.256 - World triggered "Round_Start"
+10/16/2023 - 17:59:52.103 - "smashon<2><[U:1:102286709]><TERRORIST>" [340 2458 -137] killed "Jaques<3><BOT><CT>" [334 2434 -120] with "knife_skeleton"
+10/16/2023 - 17:59:52.103 - Team "TERRORIST" triggered "SFUI_Notice_Terrorists_Win" (CT "0") (T "7")
+10/16/2023 - 17:59:52.103 - Team "CT" scored "0" with "3" players
+10/16/2023 - 17:59:52.103 - Team "TERRORIST" scored "7" with "1" players
+10/16/2023 - 17:59:52.103 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 17:59:52.103 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 17:59:52.103 - MatchStatus: Score: 0:7 on map "de_dust2" RoundsPlayed: 7
+10/16/2023 - 17:59:52.103 - World triggered "Round_End"
+10/16/2023 - 17:59:59.101 - Starting Freeze period
+10/16/2023 - 17:59:59.101 - "smashon<2><[U:1:102286709]><TERRORIST>" triggered "Got_The_Bomb"
+10/16/2023 - 17:59:59.101 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 17:59:59.101 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 17:59:59.101 - MatchStatus: Score: 0:7 on map "de_dust2" RoundsPlayed: 7
+10/16/2023 - 18:00:14.099 - World triggered "Round_Start"
+10/16/2023 - 18:00:20.201 - "smashon<2><[U:1:102286709]><TERRORIST>" [366 2451 -120] killed "Jaques<3><BOT><CT>" [334 2434 -120] with "knife_skeleton"
+10/16/2023 - 18:00:20.201 - Team "TERRORIST" triggered "SFUI_Notice_Terrorists_Win" (CT "0") (T "8")
+10/16/2023 - 18:00:20.201 - Team "CT" scored "0" with "3" players
+10/16/2023 - 18:00:20.201 - Team "TERRORIST" scored "8" with "1" players
+10/16/2023 - 18:00:20.201 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 18:00:20.201 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 18:00:20.201 - MatchStatus: Score: 0:8 on map "de_dust2" RoundsPlayed: 8
+10/16/2023 - 18:00:20.201 - World triggered "Round_End"
+10/16/2023 - 18:00:27.195 - Starting Freeze period
+10/16/2023 - 18:00:27.195 - "smashon<2><[U:1:102286709]><TERRORIST>" triggered "Got_The_Bomb"
+10/16/2023 - 18:00:27.195 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 18:00:27.195 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 18:00:27.195 - MatchStatus: Score: 0:8 on map "de_dust2" RoundsPlayed: 8
+10/16/2023 - 18:00:42.194 - World triggered "Round_Start"
+10/16/2023 - 18:00:47.589 - "smashon<2><[U:1:102286709]><TERRORIST>" [405 2367 -120] killed "Jaques<3><BOT><CT>" [351 2353 -120] with "knife_skeleton"
+10/16/2023 - 18:00:47.589 - Team "TERRORIST" triggered "SFUI_Notice_Terrorists_Win" (CT "0") (T "9")
+10/16/2023 - 18:00:47.589 - Team "CT" scored "0" with "3" players
+10/16/2023 - 18:00:47.589 - Team "TERRORIST" scored "9" with "1" players
+10/16/2023 - 18:00:47.589 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 18:00:47.589 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 18:00:47.589 - MatchStatus: Score: 0:9 on map "de_dust2" RoundsPlayed: 9
+10/16/2023 - 18:00:47.589 - World triggered "Round_End"
+10/16/2023 - 18:00:54.584 - Starting Freeze period
+10/16/2023 - 18:00:54.584 - "smashon<2><[U:1:102286709]><TERRORIST>" triggered "Got_The_Bomb"
+10/16/2023 - 18:00:54.584 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 18:00:54.584 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 18:00:54.584 - MatchStatus: Score: 0:9 on map "de_dust2" RoundsPlayed: 9
+10/16/2023 - 18:01:09.584 - World triggered "Round_Start"
+10/16/2023 - 18:01:24.599 - "smashon<2><[U:1:102286709]><TERRORIST>" triggered "Dropped_The_Bomb"
+10/16/2023 - 18:01:29.632 - "smashon<2><[U:1:102286709]><TERRORIST>" triggered "Got_The_Bomb"
+10/16/2023 - 18:01:36.774 - "smashon<2><[U:1:102286709]><TERRORIST>" [165 2311 -104] killed "Jaques<3><BOT><CT>" [160 2370 -120] with "knife_skeleton"
+10/16/2023 - 18:01:36.774 - Team "TERRORIST" triggered "SFUI_Notice_Terrorists_Win" (CT "0") (T "10")
+10/16/2023 - 18:01:36.774 - Team "CT" scored "0" with "3" players
+10/16/2023 - 18:01:36.774 - Team "TERRORIST" scored "10" with "1" players
+10/16/2023 - 18:01:36.774 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 18:01:36.774 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 18:01:36.774 - MatchStatus: Score: 0:10 on map "de_dust2" RoundsPlayed: 10
+10/16/2023 - 18:01:36.774 - World triggered "Round_End"
+10/16/2023 - 18:01:43.773 - Starting Freeze period
+10/16/2023 - 18:01:43.773 - "smashon<2><[U:1:102286709]><TERRORIST>" triggered "Got_The_Bomb"
+10/16/2023 - 18:01:43.773 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 18:01:43.773 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 18:01:43.773 - MatchStatus: Score: 0:10 on map "de_dust2" RoundsPlayed: 10
+10/16/2023 - 18:01:58.772 - World triggered "Round_Start"
+10/16/2023 - 18:02:04.668 - "smashon<2><[U:1:102286709]><TERRORIST>" [114 2392 -122] killed "Jaques<3><BOT><CT>" [160 2370 -120] with "knife_skeleton"
+10/16/2023 - 18:02:04.668 - Team "TERRORIST" triggered "SFUI_Notice_Terrorists_Win" (CT "0") (T "11")
+10/16/2023 - 18:02:04.668 - Team "CT" scored "0" with "3" players
+10/16/2023 - 18:02:04.668 - Team "TERRORIST" scored "11" with "1" players
+10/16/2023 - 18:02:04.668 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 18:02:04.668 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 18:02:04.668 - MatchStatus: Score: 0:11 on map "de_dust2" RoundsPlayed: 11
+10/16/2023 - 18:02:04.668 - World triggered "Round_End"
+10/16/2023 - 18:02:11.663 - Starting Freeze period
+10/16/2023 - 18:02:11.663 - "smashon<2><[U:1:102286709]><TERRORIST>" triggered "Got_The_Bomb"
+10/16/2023 - 18:02:11.663 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 18:02:11.663 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 18:02:11.663 - MatchStatus: Score: 0:11 on map "de_dust2" RoundsPlayed: 11
+10/16/2023 - 18:02:26.663 - World triggered "Round_Start"
+10/16/2023 - 18:02:32.478 - "smashon<2><[U:1:102286709]><TERRORIST>" [237 2525 -118] killed "Jaques<3><BOT><CT>" [258 2481 -121] with "knife_skeleton"
+10/16/2023 - 18:02:32.478 - Team "TERRORIST" triggered "SFUI_Notice_Terrorists_Win" (CT "0") (T "12")
+10/16/2023 - 18:02:32.478 - Team "CT" scored "0" with "3" players
+10/16/2023 - 18:02:32.478 - Team "TERRORIST" scored "12" with "1" players
+10/16/2023 - 18:02:32.478 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 18:02:32.478 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 18:02:32.478 - MatchStatus: Score: 0:12 on map "de_dust2" RoundsPlayed: 12
+10/16/2023 - 18:02:32.478 - World triggered "Round_End"
+10/16/2023 - 18:02:40.977 - "smashon<2><[U:1:102286709]>" switched from team <TERRORIST> to <CT>
+10/16/2023 - 18:02:40.977 - "Jaques<3><BOT>" switched from team <CT> to <TERRORIST>
+10/16/2023 - 18:02:40.977 - Starting Freeze period
+10/16/2023 - 18:02:40.977 - "Jaques<3><BOT><TERRORIST>" triggered "Got_The_Bomb"
+10/16/2023 - 18:02:40.977 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 18:02:40.977 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 18:02:40.977 - MatchStatus: Score: 12:0 on map "de_dust2" RoundsPlayed: 12
+10/16/2023 - 18:03:02.475 - World triggered "Round_Start"
+10/16/2023 - 18:03:11.416 - "Jaques<3><BOT><TERRORIST>" triggered "Dropped_The_Bomb"
+10/16/2023 - 18:03:11.416 - "smashon<2><[U:1:102286709]><CT>" [-927 -766 119] killed "Jaques<3><BOT><TERRORIST>" [-980 -754 120] with "knife_skeleton"
+10/16/2023 - 18:03:11.416 - Team "CT" triggered "SFUI_Notice_CTs_Win" (CT "13") (T "0")
+10/16/2023 - 18:03:11.416 - Team "CT" scored "13" with "3" players
+10/16/2023 - 18:03:11.416 - Team "TERRORIST" scored "0" with "1" players
+10/16/2023 - 18:03:11.416 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 18:03:11.416 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 18:03:11.416 - MatchStatus: Score: 13:0 on map "de_dust2" RoundsPlayed: 13
+10/16/2023 - 18:03:11.416 - World triggered "Round_End"
+10/16/2023 - 18:03:11.416 - ACCOLADE, FINAL: {mvps},	smashon<2>,	VALUE: 13.000000,	POS: 1,	SCORE: 80.000000
+10/16/2023 - 18:03:11.416 - ACCOLADE, FINAL: {deaths},	Jaques<3>,	VALUE: 13.000000,	POS: 1,	SCORE: 40.000000
+10/16/2023 - 18:03:11.416 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 18:03:11.416 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 18:03:11.416 - MatchStatus: Score: 13:0 on map "de_dust2" RoundsPlayed: 13
+10/16/2023 - 18:03:11.416 - Game Over: competitive  de_dust2 score 13:0 after 7 min
+10/16/2023 - 18:03:36.429 - "smashon<2><[U:1:102286709]>" switched from team <CT> to <Unassigned>
+10/16/2023 - 18:03:36.429 - "Jaques<3><BOT><TERRORIST>" disconnected (reason "NETWORK_DISCONNECT_KICKED")
+10/16/2023 - 18:03:36.429 - Starting Freeze period
+10/16/2023 - 18:03:36.429 - World triggered "Match_Start" on "de_dust2"
+10/16/2023 - 18:03:36.429 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 18:03:36.429 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 18:03:36.429 - MatchStatus: Score: 0:0 on map "de_dust2" RoundsPlayed: -1
+10/16/2023 - 18:03:36.443 - "Specialist<5><BOT><>" connected, address "none"
+10/16/2023 - 18:03:36.443 - "Specialist<5><BOT><>" entered the game
+10/16/2023 - 18:03:36.443 - "Specialist<5><BOT>" switched from team <Unassigned> to <TERRORIST>
+10/16/2023 - 18:03:36.443 - World triggered "Game_Commencing"
+10/16/2023 - 18:03:36.443 - "Lieutenant<6><BOT><>" connected, address "none"
+10/16/2023 - 18:03:36.443 - "Lieutenant<6><BOT><>" entered the game
+10/16/2023 - 18:03:36.443 - "Lieutenant<6><BOT>" switched from team <Unassigned> to <CT>
+10/16/2023 - 18:03:36.443 - Starting Freeze period
+10/16/2023 - 18:03:36.443 - World triggered "Match_Start" on "de_dust2"
+10/16/2023 - 18:03:36.443 - MatchStatus: Team "CT" is unset.
+10/16/2023 - 18:03:36.443 - MatchStatus: Team "TERRORIST" is unset.
+10/16/2023 - 18:03:36.443 - MatchStatus: Score: 0:0 on map "de_dust2" RoundsPlayed: -1
+10/16/2023 - 18:03:38.448 - World triggered "Round_Start"
+10/16/2023 - 18:03:46.352 - "smashon<2><[U:1:102286709]>" switched from team <Unassigned> to <CT>
+10/16/2023 - 18:03:46.352 - "Lieutenant<6><BOT><CT>" disconnected (reason "NETWORK_DISCONNECT_KICKED")
+10/16/2023 - 18:03:56.758 - "smashon<2><[U:1:102286709]><CT>" disconnected (reason "NETWORK_DISCONNECT_EXITING")
+10/16/2023 - 18:03:56.758 - "smashon<2><[U:1:102286709]><CT>" [-142 2157 -126] committed suicide with "world"
+10/16/2023 - 18:03:56.758 - "Specialist<5><BOT><TERRORIST>" disconnected (reason "NETWORK_DISCONNECT_INVALID")
+10/16/2023 - 18:03:56.758 - server_cvar: "sv_cheats" "false"
