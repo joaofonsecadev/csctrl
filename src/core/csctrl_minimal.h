@@ -1,8 +1,7 @@
 #pragma once
 
 #include <cstdint>
-#include <spdlog/spdlog.h>
-#include "logger/logger.h"
+#include "tracy/Tracy.hpp"
 
 typedef int8_t      int8;
 typedef int16_t     int16;
@@ -17,9 +16,12 @@ typedef uint64_t    uint64;
 #define CSCTRL_SHIPPING 1
 #else
 #define CSCTRL_SHIPPING 0
+#define SPDLOG_ACTIVE_LEVEL SPDLOG_LEVEL_TRACE
 #endif
 
+#include <spdlog/spdlog.h>
+#include "logger/logger.h"
 #define CSCTRL_LOG(LogLevel, ...) \
-    SPDLOG_LOGGER_CALL(Logger::GetStdoutLogger(), LogLevel, __VA_ARGS__); \
-    if (LogLevel == spdlog::level::critical) \
+    SPDLOG_LOGGER_CALL(Logger::GetStdoutLogger(), Logger::LoggerLevelToSpdlogLevel(LogLevel), __VA_ARGS__); \
+    if (LogLevel == LoggerLevel::Critical) \
         assert(false && __VA_ARGS__)

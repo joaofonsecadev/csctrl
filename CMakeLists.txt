@@ -35,7 +35,15 @@ endforeach()
 add_subdirectory(external/spdlog)
 set_target_properties(spdlog PROPERTIES FOLDER external)
 
+option(TRACY_ENABLE "" ON)
+option(TRACY_ON_DEMAND "" ON)
+add_subdirectory(external/tracy)
+set_target_properties(TracyClient PROPERTIES FOLDER external)
+
 # Project target and include directories
 add_executable(csctrl ${SourceFiles})
 target_include_directories(csctrl PUBLIC src/)
-target_link_libraries(csctrl spdlog::spdlog)
+target_link_libraries(csctrl
+        spdlog::spdlog
+        Tracy::TracyClient
+)
