@@ -20,6 +20,7 @@ struct ClapParser {
 fn main() {
     let mut csctrl = csctrl::csctrl::Csctrl::csctrl();
     let _tracing_guard = system::utilities::configure_tracing(&csctrl.csctrl_config.tracing_env_filter);
+    system::utilities::ensure_directories_exist();
 
     csctrl.init();
     while !csctrl.has_requested_exit() {

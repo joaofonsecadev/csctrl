@@ -1,4 +1,5 @@
-use std::path::PathBuf;
+use std::fs;
+use std::path::{Path, PathBuf};
 use clap::Parser;
 use rand::Rng;
 use crate::ClapParser;
@@ -70,4 +71,23 @@ pub fn configure_tracing(env_filter: &str) -> tracing_appender::non_blocking::Wo
         .finish()).expect("Failed tracing subscriber creation");
 
     return _guard;
+}
+
+pub fn ensure_directories_exist() {
+    let required_directories = vec![
+        "logs/matches",
+        "matches",
+        "cfg",
+    ];
+
+    let mut csctrl_binary_path = std::env::current_exe().unwrap();
+    csctrl_binary_path.pop();
+
+    for required_directory in required_directories {
+        let directory = Path::new(&csctrl_binary_path).join(required_directory);
+        if directory.exists() {
+            return;
+        }
+        fs::create_dir_all(directory).expect(&format!("Failed to create the required directory '{}'", required_directory));
+    }
 }
