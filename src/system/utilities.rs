@@ -57,8 +57,6 @@ pub fn configure_tracing(env_filter: &str) -> tracing_appender::non_blocking::Wo
     let mut csctrl_binary_path = std::env::current_exe().unwrap();
     csctrl_binary_path.pop();
     csctrl_binary_path.push("logs");
-    csctrl_binary_path.push("csctrl");
-
 
     let timestamp = chrono::Local::now().format("%Y-%m-%d---%H-%M-%S");
     let file_appender = tracing_appender::rolling::never(csctrl_binary_path, format!("csctrl_{}.log", timestamp));
