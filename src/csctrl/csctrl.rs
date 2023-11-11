@@ -4,6 +4,7 @@ use std::string::ToString;
 use std::sync::{OnceLock, RwLock};
 use crate::{csctrl, system};
 use crate::commands::base::Command;
+use crate::commands::csctrl_generate_match::CsctrlGenerateMatch;
 use crate::commands::csctrl_generate_server::CsctrlGenerateServer;
 use crate::commands::rcon::Rcon;
 use crate::csctrl::server::CsctrlServer;
@@ -60,6 +61,7 @@ impl Csctrl {
 
     pub fn init(&mut self) {
         tracing::info!("CSCTRL Version {}", env!("CARGO_PKG_VERSION"));
+
         let _ = self.register_commands();
         let _ = self.webserver.init(&self.csctrl_config);
         let _ = self.terminal.init();
@@ -137,6 +139,9 @@ impl Csctrl {
 
         let command_csctrl_generate_server = Box::new(CsctrlGenerateServer);
         registered_commands.insert(command_csctrl_generate_server.name(), command_csctrl_generate_server);
+
+        let command_csctrl_generate_match = Box::new(CsctrlGenerateMatch);
+        registered_commands.insert(command_csctrl_generate_match.name(), command_csctrl_generate_match);
     }
     
     fn process_command_messenger(&mut self) {
