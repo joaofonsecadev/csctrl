@@ -151,20 +151,27 @@ fn ui(state: &mut TerminalUiState, data: &mut CsctrlDataParent, frame: &mut Fram
         ])
         .split(layout_servers_active[1]);
 
-    let mut server_list: Vec<ratatui::prelude::Line<'_>> = vec![];
+    let mut server_list: Vec<ratatui::prelude::Line<'_>> = vec![
+        ratatui::prelude::Line::from(vec!["Selected".bg(Color::Green).black().bold(), "  ".into(), "Online".green(), "  ".into(), "Offline".dark_gray()]),
+        "".into(),
+    ];
     for (server_address, server_data) in &data.servers {
         if state.selected_server_address == server_address.to_string() {
             server_list.push(Span::styled(format!("{} - {}", server_data.config.name, server_address), Style::default().bg(Color::Green).black().bold()).into());
         }
-        else {
-            server_list.push(Span::styled(format!("{} - {}", server_data.config.name, server_address), Style::default()).into());
+        else if server_data.is_online {
+            server_list.push(Span::styled(format!("{} - {}", server_data.config.name, server_address), Style::default().green()).into());
         }
+        else {
+            server_list.push(Span::styled(format!("{} - {}", server_data.config.name, server_address), Style::default().dark_gray()).into());
+        }
+        server_list.push("".into());
     }
     let servers_block = Block::new().title("Servers").borders(Borders::all());
 
     frame.render_widget(Block::new().title("CSCTRL".red().bold().underlined()), layout_main[0]);
     frame.render_widget(Paragraph::new(server_list).block(servers_block).wrap(Wrap { trim: false }), layout_servers_active[0]);
-    frame.render_widget(Block::new().title("Active server data").borders(Borders::all()), layout_active_logs[0]);
+    frame.render_widget(Block::new().title("Selected server data").borders(Borders::all()), layout_active_logs[0]);
     frame.render_widget(Block::new().title("Logs").borders(Borders::all()), layout_active_logs[1]);
 
     let time_in_secs = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs();

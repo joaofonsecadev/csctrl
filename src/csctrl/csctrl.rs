@@ -183,6 +183,7 @@ impl Csctrl {
 
     fn handle_weblog(&mut self, server_data: &mut CsctrlDataServer, log_line: &str) {
         self.is_data_dirty = true;
+        server_data.is_online = true;
         server_data.logs.push(log_line.to_string());
     }
 
