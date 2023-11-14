@@ -28,14 +28,14 @@ impl crate::commands::base::Command for TerminalServerSelect {
     }
 
     fn description(&self) -> String {
-        todo!()
+        "Select which server to monitor and/or execute commands on, using its name or address".to_string()
     }
 
     fn variables(&self) -> String {
-        todo!()
+        "1. Name/Address of the server".to_string()
     }
 
     fn example(&self) -> String {
-        todo!()
+        "terminal.server.select TestServer".to_string()
     }
 }
