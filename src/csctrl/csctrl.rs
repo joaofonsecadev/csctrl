@@ -184,7 +184,7 @@ impl Csctrl {
     fn handle_weblog(&mut self, server_data: &mut CsctrlDataServer, log_line: &str) {
         self.is_data_dirty = true;
         server_data.is_online = true;
-        server_data.logs.push(log_line.to_string());
+        server_data.logs.push(process_and_get_server_log(log_line));
     }
 
     fn handle_dirty_data(&mut self) {
@@ -230,4 +230,8 @@ impl Csctrl {
     pub fn has_requested_exit(&self) -> &bool {
         return &self.requested_exit;
     }
+}
+
+fn process_and_get_server_log(unprocessed_server_log: &str) -> String {
+    return unprocessed_server_log.to_string();
 }
