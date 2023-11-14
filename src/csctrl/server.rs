@@ -1,11 +1,12 @@
 use std::collections::VecDeque;
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc::error::TryRecvError;
-use crate::csctrl::types::CsctrlServerSetup;
+use crate::csctrl::types::{CsctrlServerSetup, MatchSetup};
 use crate::rcon::connection::RconConnection;
 
 pub struct CsctrlServer {
     config: CsctrlServerSetup,
+    match_setup: MatchSetup,
     rcon_connection: crate::rcon::connection::RconConnection,
     thread_receiver: tokio::sync::mpsc::UnboundedReceiver<String>,
     thread_sender: tokio::sync::mpsc::UnboundedSender<String>
@@ -18,6 +19,13 @@ impl CsctrlServer {
             config: setup,
             thread_receiver: receiver,
             thread_sender: sender,
+            match_setup: MatchSetup {
+                team_a_name: "".to_string(),
+                team_b_name: "".to_string(),
+                knife_round: false,
+                cfg_filename: "".to_string(),
+                player_amount: 0,
+            },
         }
     }
 
@@ -92,6 +100,10 @@ impl CsctrlServer {
         response.pop();
 
         tracing::trace!("Rcon response:\n{}", response);
+    }
+
+    pub fn set_match_setup(&mut self, setup: &MatchSetup) {
+        self.match_setup = setup.clone();
     }
 
     pub fn get_setup(&self) -> &CsctrlServerSetup { return &self.config }

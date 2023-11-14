@@ -20,10 +20,11 @@ impl Command for CsctrlGenerateMatch {
         }
 
         let match_setup = crate::csctrl::types::MatchSetup {
-            team_a: crate::csctrl::types::TeamSettings { name: "".to_string(), members_steam_3: vec![] },
-            team_b: crate::csctrl::types::TeamSettings { name: "".to_string(), members_steam_3: vec![] },
+            team_a_name: "".to_string(),
+            team_b_name: "".to_string(),
             knife_round: false,
             cfg_filename: "".to_string(),
+            player_amount: 0,
         };
 
         let file = std::fs::OpenOptions::new().write(true).truncate(true).create(true).open(&csctrl_binary_path).unwrap();

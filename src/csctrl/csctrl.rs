@@ -124,7 +124,7 @@ impl Csctrl {
                     score: 0,
                     players: vec![],
                 },
-                status: CsctrlMatchStatus::NotStarted,
+                status: CsctrlMatchStatus::NoStartHook,
                 logs: vec![],
             });
         }

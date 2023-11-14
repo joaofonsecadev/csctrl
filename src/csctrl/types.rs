@@ -17,18 +17,13 @@ pub struct CsctrlServerSetup {
     pub rcon_password: String,
 }
 
-#[derive(serde::Serialize, serde::Deserialize)]
+#[derive(serde::Serialize, serde::Deserialize, Clone)]
 pub struct MatchSetup {
-    pub team_a: TeamSettings,
-    pub team_b: TeamSettings,
+    pub team_a_name: String,
+    pub team_b_name: String,
     pub knife_round: bool,
-    pub cfg_filename: String
-}
-
-#[derive(serde::Serialize, serde::Deserialize)]
-pub struct TeamSettings {
-    pub name: String,
-    pub members_steam_3: Vec<String>
+    pub cfg_filename: String,
+    pub player_amount: u8,
 }
 
 pub struct CsctrlServerContainer {
@@ -67,9 +62,11 @@ pub struct CsctrlDataTeam {
 
 #[derive(Clone)]
 pub enum CsctrlMatchStatus {
-    NotStarted,
+    NoStartHook,
+    PreMatchWarmup,
     KnifeRound,
-    Warmup,
+    SwitchTeamsWarmup,
     Live,
     Finished,
+    Paused,
 }

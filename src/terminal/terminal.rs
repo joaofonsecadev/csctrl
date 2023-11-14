@@ -15,6 +15,7 @@ use crate::csctrl::types::CsctrlDataParent;
 
 struct TerminalUiState {
     selected_server_address: String,
+    selected_server_index: u8,
     input_box: String,
     last_type_time_secs: u64
 }
@@ -30,7 +31,8 @@ impl Terminal {
     pub fn terminal() -> Terminal {
         Terminal {
             terminal_ui_state: TerminalUiState {
-                selected_server_address: "89.114.134.177:27015".to_string(),
+                selected_server_address: "".to_string(),
+                selected_server_index: 0,
                 input_box: "".to_string(),
                 last_type_time_secs: 0,
             },
