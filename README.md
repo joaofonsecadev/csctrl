@@ -2,7 +2,7 @@
   <img src="https://github.com/joaofonsecadev/csctrl/blob/main/docs/logo_big.png?raw=true" width=300/>
   <br>
   🔊 cee-ess kuhn-trohl
-  <h2>CSCTRL: The future of CS2 match management is here.</h2>
+  <h2>CSCTRL: Fast and simple CS2 match management.</h2>
 </div>
 <p>CSCTRL is the perfect tool for any server owner who wants to save time and make managing CS2 matches easier. Set up matches in minutes and then let the software take care of the rest. Some of its features are:</p>
 <ul>
