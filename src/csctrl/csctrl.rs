@@ -7,6 +7,7 @@ use crate::commands::base::Command;
 use crate::commands::csctrl_generate_match::CsctrlGenerateMatch;
 use crate::commands::csctrl_generate_server::CsctrlGenerateServer;
 use crate::commands::rcon::Rcon;
+use crate::commands::terminal_server_select::TerminalServerSelect;
 use crate::csctrl::server::CsctrlServer;
 use crate::csctrl::types::{CsctrlDataParent, CsctrlDataServer, CsctrlDataTeam, CsctrlMatchStatus, CsctrlServerContainer, CsctrlServerSetup};
 use crate::terminal::terminal::Terminal;
@@ -38,7 +39,7 @@ pub struct Csctrl {
     requested_exit: bool,
     pub csctrl_config: csctrl::types::CsctrlConfig,
     webserver: Webserver,
-    terminal: Terminal,
+    pub terminal: Terminal,
     pub servers: HashMap<String, CsctrlServerContainer>,
     server_threads_receiver: OnceLock<tokio::sync::mpsc::UnboundedReceiver<String>>,
     server_threads_sender: OnceLock<tokio::sync::mpsc::UnboundedSender<String>>,
@@ -127,6 +128,8 @@ impl Csctrl {
                 status: CsctrlMatchStatus::NoStartHook,
                 logs: vec![],
             });
+
+            self.is_data_dirty = true;
         }
     }
 
@@ -142,6 +145,9 @@ impl Csctrl {
 
         let command_csctrl_generate_match = Box::new(CsctrlGenerateMatch);
         registered_commands.insert(command_csctrl_generate_match.name(), command_csctrl_generate_match);
+
+        let command_terminal_server_select = Box::new(TerminalServerSelect);
+        registered_commands.insert(command_terminal_server_select.name(), command_terminal_server_select);
     }
     
     fn process_command_messenger(&mut self) {

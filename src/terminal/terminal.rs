@@ -3,21 +3,23 @@ use crossterm::ExecutableCommand;
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen};
 use ratatui::backend::{Backend, CrosstermBackend};
 use std::cell::OnceCell;
+use std::str::Lines;
 use clap::Parser;
 use crossterm::event::{Event, KeyCode, KeyEventKind};
 use ratatui::Frame;
 use ratatui::layout::{Constraint, Layout};
-use ratatui::prelude::Direction;
-use ratatui::style::Stylize;
-use ratatui::widgets::{Block, Borders, Paragraph};
+use ratatui::prelude::{Color, Direction};
+use ratatui::style::{Style, Stylize};
+use ratatui::text::Span;
+use ratatui::widgets::{Block, Borders, Paragraph, Wrap};
+use ratatui::widgets::GraphType::Line;
 use crate::ClapParser;
 use crate::csctrl::types::CsctrlDataParent;
 
 struct TerminalUiState {
-    selected_server_address: String,
-    selected_server_index: u8,
     input_box: String,
-    last_type_time_secs: u64
+    last_type_time_secs: u64,
+    selected_server_address: String
 }
 
 pub struct Terminal {
@@ -31,10 +33,9 @@ impl Terminal {
     pub fn terminal() -> Terminal {
         Terminal {
             terminal_ui_state: TerminalUiState {
-                selected_server_address: "".to_string(),
-                selected_server_index: 0,
                 input_box: "".to_string(),
                 last_type_time_secs: 0,
+                selected_server_address: "".to_string(),
             },
             terminal_ui: OnceCell::new(),
             is_terminal_active: false,
@@ -84,6 +85,7 @@ impl Terminal {
                 }
                 KeyCode::Enter => {
                     if key.kind != KeyEventKind::Press { return; }
+
                     let input = format!("<csctrlseptarget>{}<csctrlseptarget>{}", self.terminal_ui_state.selected_server_address, self.terminal_ui_state.input_box.to_string());
                     if input.is_empty() { return; }
                     self.terminal_ui_state.input_box.clear();
@@ -100,6 +102,10 @@ impl Terminal {
         crossterm::execute!(self.terminal_ui.get_mut().unwrap().backend_mut(), LeaveAlternateScreen);
         self.terminal_ui.get_mut().unwrap().show_cursor().unwrap();
         self.is_terminal_active = false;
+    }
+
+    pub fn set_selected_server_address(&mut self, new_selected_server: &String) {
+        self.terminal_ui_state.selected_server_address = new_selected_server.to_string();
     }
 
     pub fn is_terminal_active(&self) -> &bool {
@@ -145,9 +151,19 @@ fn ui(state: &mut TerminalUiState, data: &mut CsctrlDataParent, frame: &mut Fram
         ])
         .split(layout_servers_active[1]);
 
-    frame.render_widget(Block::new().title("CSCTRL".red().bold().underlined()), layout_main[0]);
+    let mut server_list: Vec<ratatui::prelude::Line<'_>> = vec![];
+    for (server_address, server_data) in &data.servers {
+        if state.selected_server_address == server_address.to_string() {
+            server_list.push(Span::styled(format!("{} - {}", server_data.config.name, server_address), Style::default().bg(Color::Green).black().bold()).into());
+        }
+        else {
+            server_list.push(Span::styled(format!("{} - {}", server_data.config.name, server_address), Style::default()).into());
+        }
+    }
+    let servers_block = Block::new().title("Servers").borders(Borders::all());
 
-    frame.render_widget(Block::new().title("Servers").borders(Borders::all()), layout_servers_active[0]);
+    frame.render_widget(Block::new().title("CSCTRL".red().bold().underlined()), layout_main[0]);
+    frame.render_widget(Paragraph::new(server_list).block(servers_block).wrap(Wrap { trim: false }), layout_servers_active[0]);
     frame.render_widget(Block::new().title("Active server data").borders(Borders::all()), layout_active_logs[0]);
     frame.render_widget(Block::new().title("Logs").borders(Borders::all()), layout_active_logs[1]);
 

@@ -45,7 +45,7 @@ fn generate_default_config() -> CsctrlConfig {
         chat_signature: "csctrl".to_string(),
         cs_listen_path: "/cslog".to_string(),
         rest_api_address: "0.0.0.0:27016".to_string(),
-        secret: rand::thread_rng().sample_iter(&rand::distributions::Alphanumeric).take(16).map(char::from).collect(),
+        secret: rand::thread_rng().sample_iter(&rand::distributions::Alphanumeric).take(64).map(char::from).collect(),
         servers: vec![],
         tracing_env_filter: "csctrl=info".to_string(),
     };

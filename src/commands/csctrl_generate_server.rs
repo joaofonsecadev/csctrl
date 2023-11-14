@@ -14,7 +14,7 @@ impl crate::commands::base::Command for CsctrlGenerateServer {
 
         let server_name = split_arguments[0].to_string();
         let server_address = split_arguments[1].to_string();
-        let server_rcon_password = split_arguments[3].to_string();
+        let server_rcon_password = split_arguments[2].to_string();
 
         csctrl.csctrl_config.servers.push(CsctrlServerSetup {
             name: server_name,
@@ -38,6 +38,6 @@ impl crate::commands::base::Command for CsctrlGenerateServer {
     }
 
     fn example(&self) -> String {
-        "csctrl.generate.server ServerA 0.0.0.0:27015 0.0.0.0:27015 SuperRconPassword3".to_string()
+        "csctrl.generate.server ServerA 0.0.0.0:27015 SuperRconPassword3".to_string()
     }
 }
