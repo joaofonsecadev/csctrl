@@ -6,11 +6,9 @@
 </div>
 <p>CSCTRL is the perfect tool for any server owner who wants to save time and make managing CS2 matches easier. Set up matches in minutes and then let the software take care of the rest. Some of its features are:</p>
 <ul>
-  <li>Team attribution and customization</li>
+  <li>Team customization</li>
   <li>Knife round</li>
-  <li>Match medic</li>
   <li>Multiple config support</li>
   <li>Multiple matches and server support</li>
   <li>RCON access to the servers</li>
-  <li>Automatic CSTV recording and downloading</li>
 </ul>
