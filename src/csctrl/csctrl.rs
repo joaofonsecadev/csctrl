@@ -7,6 +7,7 @@ use crate::commands::base::Command;
 use crate::commands::csctrl_generate_match::CsctrlGenerateMatch;
 use crate::commands::csctrl_generate_server::CsctrlGenerateServer;
 use crate::commands::rcon::Rcon;
+use crate::commands::server_match_setup_load::ServerMatchSetupLoad;
 use crate::commands::terminal_server_select::TerminalServerSelect;
 use crate::csctrl::server::CsctrlServer;
 use crate::csctrl::types::{CsctrlDataParent, CsctrlDataServer, CsctrlDataTeam, CsctrlMatchStatus, CsctrlServerContainer, CsctrlServerSetup};
@@ -148,6 +149,9 @@ impl Csctrl {
 
         let command_terminal_server_select = Box::new(TerminalServerSelect);
         registered_commands.insert(command_terminal_server_select.name(), command_terminal_server_select);
+
+        let command_server_match_setup_load = Box::new(ServerMatchSetupLoad);
+        registered_commands.insert(command_server_match_setup_load.name(), command_server_match_setup_load);
     }
     
     fn process_command_messenger(&mut self) {

@@ -65,9 +65,17 @@ impl CsctrlServer {
 
     fn handle_thread_message(&mut self, message: String) {
         tracing::trace!("Received message: '{}'", message);
+
+        match serde_json::from_str(&message) {
+            Ok(match_setup_json) => {
+                self.set_match_setup(&match_setup_json);
+                return;
+            }
+            _ => {}
+        };
+
         let mut split_string: VecDeque<&str> = message.split(" ").collect();
         let first_word = split_string[0];
-
         match first_word {
             "rcon" => {
                 split_string.pop_front().unwrap();
