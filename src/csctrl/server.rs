@@ -3,6 +3,7 @@ use tokio::runtime::Runtime;
 use tokio::sync::mpsc::error::TryRecvError;
 use crate::csctrl::types::{CsctrlServerSetup, MatchSetup};
 use crate::rcon::connection::RconConnection;
+use crate::system::utilities::get_csctrl_config_file_path;
 
 pub struct CsctrlServer {
     config: CsctrlServerSetup,
@@ -85,6 +86,32 @@ impl CsctrlServer {
                 }
 
                 Runtime::new().unwrap().block_on(self.rcon(arguments.trim().to_string()));
+            }
+            "server.match.start" => {
+                let mut cmd_vec = vec![
+                    format!("mp_teamname_1 \"{}\"", self.match_setup.team_a_name),
+                    format!("mp_teamname_2 \"{}\"", self.match_setup.team_b_name)
+                ];
+
+                let mut match_cfg_path = get_csctrl_config_file_path();
+                match_cfg_path.pop();
+                match_cfg_path.push(format!("cfg/{}.cfg", &self.match_setup.cfg_filename));
+
+                let match_cfg_string = std::fs::read_to_string(match_cfg_path);
+                if match_cfg_string.is_err() {
+                    tracing::error!("Error reading match cfg file '{}'", &self.match_setup.cfg_filename);
+                    return;
+                }
+
+                let fixed_line_endings_split_cfg = match_cfg_string.unwrap().replace("\r\n", "\n");
+                let split_cfg: Vec<&str> = fixed_line_endings_split_cfg.split("\n").collect();
+                for split_cmd in split_cfg {
+                    cmd_vec.push(split_cmd.to_string());
+                }
+
+                for cmd in cmd_vec {
+                    Runtime::new().unwrap().block_on(self.rcon(cmd));
+                }
             }
             &_ => {}
         }
