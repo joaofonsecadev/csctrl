@@ -11,11 +11,16 @@ use crate::commands::server_match_setup_load::ServerMatchSetupLoad;
 use crate::commands::server_match_start::ServerMatchStart;
 use crate::commands::terminal_server_select::TerminalServerSelect;
 use crate::csctrl::server::CsctrlServer;
-use crate::csctrl::types::{CsctrlDataParent, CsctrlDataServer, CsctrlDataTeam, CsctrlMatchStatus, CsctrlServerContainer, CsctrlServerSetup};
+use crate::csctrl::types::{CsctrlDataParent, CsctrlDataServer, CsctrlDataTeam, CsctrlMatchStatus, CsctrlServerContainer, CsctrlServerSetup, CsctrlStaticData};
 use crate::terminal::terminal::Terminal;
 use crate::webserver::webserver::Webserver;
 
 pub const FORMAT_SEPARATOR: &str = "<csctrlseptarget>";
+
+pub fn get_static_data() -> &'static RwLock<CsctrlStaticData> {
+    static STATIC_DATA: OnceLock<RwLock<CsctrlStaticData>> = OnceLock::new();
+    STATIC_DATA.get_or_init(|| RwLock::new(CsctrlStaticData))
+}
 
 pub fn get_command_messenger() -> &'static RwLock<VecDeque<String>> {
     static COMMAND_MESSENGER: OnceLock<RwLock<VecDeque<String>>> = OnceLock::new();

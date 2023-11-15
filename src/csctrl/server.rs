@@ -109,6 +109,8 @@ impl CsctrlServer {
                     cmd_vec.push(split_cmd.to_string());
                 }
 
+
+
                 for cmd in cmd_vec {
                     Runtime::new().unwrap().block_on(self.rcon(cmd));
                 }
@@ -135,6 +137,10 @@ impl CsctrlServer {
         response.pop();
 
         tracing::trace!("Rcon response:\n{}", response);
+    }
+
+    fn generate_say_command(&self, say_text: &str) -> String {
+        return format!("[{}]{}", self., say_text);
     }
 
     pub fn set_match_setup(&mut self, setup: &MatchSetup) {

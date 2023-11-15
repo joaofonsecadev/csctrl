@@ -10,6 +10,11 @@ pub struct CsctrlConfig {
     pub tracing_env_filter: String,
 }
 
+#[derive(Clone)]
+pub struct CsctrlStaticData {
+
+}
+
 #[derive(serde::Serialize, serde::Deserialize, Clone)]
 pub struct CsctrlServerSetup {
     pub name: String,
