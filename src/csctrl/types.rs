@@ -12,7 +12,7 @@ pub struct CsctrlConfig {
 
 #[derive(Clone)]
 pub struct CsctrlStaticData {
-
+    pub chat_signature: String,
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Clone)]
@@ -65,13 +65,35 @@ pub struct CsctrlDataTeam {
     pub players: Vec<CsctrlDataPlayer>
 }
 
-#[derive(Clone)]
+#[derive(Clone, PartialEq)]
 pub enum CsctrlMatchStatus {
-    NoStartHook,
+    NoHook,
     PreMatchWarmup,
     KnifeRound,
     SwitchTeamsWarmup,
     Live,
     Finished,
     Paused,
+    Invalid
+}
+
+impl CsctrlMatchStatus {
+    pub fn string_to_enum(string: &str) -> CsctrlMatchStatus {
+        return match string {
+            "NoHook" => { CsctrlMatchStatus::NoHook },
+            "PreMatchWarmup" => { CsctrlMatchStatus::PreMatchWarmup },
+            "KnifeRound" => { CsctrlMatchStatus::KnifeRound },
+            "SwitchTeamsWarmup" => { CsctrlMatchStatus::SwitchTeamsWarmup },
+            "Live" => { CsctrlMatchStatus::Live },
+            "Finished" => { CsctrlMatchStatus::Finished },
+            "Paused" => { CsctrlMatchStatus::Paused },
+            &_ => { CsctrlMatchStatus::Invalid }
+        }
+    }
+}
+
+#[derive(Clone, Eq, Hash, PartialEq)]
+pub enum CsctrlLogType {
+    Invalid,
+    PlayerSay,
 }

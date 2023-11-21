@@ -2,6 +2,8 @@ use std::collections::{HashMap, VecDeque};
 use std::ops::Deref;
 use std::string::ToString;
 use std::sync::{OnceLock, RwLock};
+use regex::Regex;
+use tokio::sync::mpsc::error::TryRecvError;
 use crate::{csctrl, system};
 use crate::commands::base::Command;
 use crate::commands::csctrl_generate_match::CsctrlGenerateMatch;
@@ -11,7 +13,8 @@ use crate::commands::server_match_setup_load::ServerMatchSetupLoad;
 use crate::commands::server_match_start::ServerMatchStart;
 use crate::commands::terminal_server_select::TerminalServerSelect;
 use crate::csctrl::server::CsctrlServer;
-use crate::csctrl::types::{CsctrlDataParent, CsctrlDataServer, CsctrlDataTeam, CsctrlMatchStatus, CsctrlServerContainer, CsctrlServerSetup, CsctrlStaticData};
+use crate::csctrl::types::{CsctrlDataParent, CsctrlDataServer, CsctrlDataTeam, CsctrlLogType, CsctrlMatchStatus, CsctrlServerContainer, CsctrlServerSetup, CsctrlStaticData};
+use crate::csctrl::types::CsctrlLogType::Invalid;
 use crate::terminal::terminal::Terminal;
 use crate::webserver::webserver::Webserver;
 
@@ -19,7 +22,9 @@ pub const FORMAT_SEPARATOR: &str = "<csctrlseptarget>";
 
 pub fn get_static_data() -> &'static RwLock<CsctrlStaticData> {
     static STATIC_DATA: OnceLock<RwLock<CsctrlStaticData>> = OnceLock::new();
-    STATIC_DATA.get_or_init(|| RwLock::new(CsctrlStaticData))
+    STATIC_DATA.get_or_init(|| RwLock::new(CsctrlStaticData {
+        chat_signature: "".to_string(),
+    }))
 }
 
 pub fn get_command_messenger() -> &'static RwLock<VecDeque<String>> {
@@ -51,6 +56,7 @@ pub struct Csctrl {
     server_threads_receiver: OnceLock<tokio::sync::mpsc::UnboundedReceiver<String>>,
     server_threads_sender: OnceLock<tokio::sync::mpsc::UnboundedSender<String>>,
     is_data_dirty: bool,
+    log_regex_matchers: HashMap<CsctrlLogType, Regex>
 }
 
 impl Csctrl {
@@ -64,15 +70,18 @@ impl Csctrl {
             server_threads_receiver: OnceLock::new(),
             server_threads_sender: OnceLock::new(),
             is_data_dirty: false,
+            log_regex_matchers: Default::default(),
         }
     }
 
     pub fn init(&mut self) {
         tracing::info!("CSCTRL Version {}", env!("CARGO_PKG_VERSION"));
+        get_static_data().write().unwrap().chat_signature = self.csctrl_config.chat_signature.clone();
 
         let _ = self.register_commands();
         let _ = self.webserver.init(&self.csctrl_config);
         let _ = self.terminal.init();
+
 
         let(sender, receiver) = tokio::sync::mpsc::unbounded_channel();
         self.server_threads_receiver.get_or_init(|| receiver);
@@ -86,6 +95,8 @@ impl Csctrl {
 
         self.process_command_messenger();
         self.process_weblog_messenger();
+        self.process_server_receiver_channel();
+        self.register_log_regex_matchers();
 
         if self.is_data_dirty { self.handle_dirty_data(); }
     }
@@ -94,6 +105,10 @@ impl Csctrl {
         tracing::info!("Exiting CSCTRL");
         let _ = &self.terminal.shutdown();
         let _ = &self.webserver.shutdown();
+    }
+
+    fn register_log_regex_matchers(&mut self) {
+        self.log_regex_matchers.insert(CsctrlLogType::PlayerSay, regex::Regex::new(r#"[0-9\/\ \-\.\:]*\"(?<username>.*)<[0-9]*><\[(?<steam_id>[a-zA-Z]\:[0-9]\:[0-9]*)]><(?<team_side>CT|TERRORIST)>\" (?:say_team|say) \"(?<chat>.*)\""#).unwrap());
     }
 
     fn reset_registered_servers(&mut self) {
@@ -132,7 +147,7 @@ impl Csctrl {
                     score: 0,
                     players: vec![],
                 },
-                status: CsctrlMatchStatus::NoStartHook,
+                status: CsctrlMatchStatus::NoHook,
                 logs: vec![],
             });
 
@@ -193,7 +208,9 @@ impl Csctrl {
     fn handle_weblog(&mut self, server_data: &mut CsctrlDataServer, log_line: &str) {
         self.is_data_dirty = true;
         server_data.is_online = true;
-        server_data.logs.push(process_and_get_server_log(log_line));
+
+        let log_line = self.process_and_get_server_log(server_data, log_line);
+        server_data.logs.push(log_line);
     }
 
     fn handle_dirty_data(&mut self) {
@@ -232,6 +249,53 @@ impl Csctrl {
         }
     }
 
+    fn process_server_receiver_channel(&mut self) {
+        let received_message = match self.server_threads_receiver.get_mut().unwrap().try_recv() {
+            Ok(message) => { message }
+            Err(_) => { return; }
+        };
+
+        let source_address_and_content: Vec<&str> = received_message.split(FORMAT_SEPARATOR).collect();
+        if source_address_and_content[1].contains("CsctrlMatchStatus") {
+            let match_status_and_value: Vec<&str> = source_address_and_content[1].split(":").collect();
+            let mut data_write_lock = get_data().write().unwrap();
+            let source_server = data_write_lock.servers.get_mut(source_address_and_content[0]);
+            if source_server.is_none() {
+                tracing::error!("Can't find data for server '{}'", source_address_and_content[0]);
+                return;
+            }
+            let match_status = CsctrlMatchStatus::string_to_enum(match_status_and_value[1]);
+            if match_status == CsctrlMatchStatus::Invalid {
+                return;
+            }
+
+            source_server.unwrap().status = match_status;
+            self.is_data_dirty = true;
+        }
+    }
+
+    fn process_and_get_server_log(&mut self, server_data: &mut CsctrlDataServer, unprocessed_server_log: &str) -> String {
+        let mut log_type: &CsctrlLogType = &Invalid;
+        let mut regex: &Regex = &Regex::new("").unwrap();
+        for (log_type_iter, regex_iter) in &self.log_regex_matchers {
+            if !regex_iter.is_match(unprocessed_server_log) {
+                continue;
+            }
+            log_type = log_type_iter;
+            regex = regex_iter;
+            break;
+        }
+        if log_type == &Invalid { return unprocessed_server_log.to_string(); }
+
+        let regex_captures = regex.captures(unprocessed_server_log).unwrap();
+        match log_type {
+            CsctrlLogType::PlayerSay => { csctrl::log_events::player_say(self, server_data, regex_captures["username"].to_string(), regex_captures["steam_id"].to_string(), regex_captures["team_side"].to_string(), regex_captures["chat"].to_string()) }
+            _ => {}
+        }
+
+        return unprocessed_server_log.to_string();
+    }
+
     pub fn write_config(&self) {
         system::utilities::write_config(&self.csctrl_config);
     }
@@ -241,6 +305,4 @@ impl Csctrl {
     }
 }
 
-fn process_and_get_server_log(unprocessed_server_log: &str) -> String {
-    return unprocessed_server_log.to_string();
-}
+

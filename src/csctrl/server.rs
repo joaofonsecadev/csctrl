@@ -1,7 +1,8 @@
-use std::collections::VecDeque;
+use std::collections::{HashMap, VecDeque};
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc::error::TryRecvError;
-use crate::csctrl::types::{CsctrlServerSetup, MatchSetup};
+use crate::csctrl::csctrl::{FORMAT_SEPARATOR, get_static_data};
+use crate::csctrl::types::{CsctrlLogType, CsctrlServerSetup, MatchSetup};
 use crate::rcon::connection::RconConnection;
 use crate::system::utilities::get_csctrl_config_file_path;
 
@@ -10,7 +11,8 @@ pub struct CsctrlServer {
     match_setup: MatchSetup,
     rcon_connection: crate::rcon::connection::RconConnection,
     thread_receiver: tokio::sync::mpsc::UnboundedReceiver<String>,
-    thread_sender: tokio::sync::mpsc::UnboundedSender<String>
+    thread_sender: tokio::sync::mpsc::UnboundedSender<String>,
+    last_rcon_success: bool,
 }
 
 impl CsctrlServer {
@@ -27,22 +29,18 @@ impl CsctrlServer {
                 cfg_filename: "".to_string(),
                 player_amount: 0,
             },
+            last_rcon_success: false,
         }
     }
 
     pub fn main(&mut self) {
         tracing::debug!("Thread created");
-        Runtime::new().unwrap().block_on(self.try_rcon_connection());
 
         loop {
             if !self.tick() { break; };
         }
 
         tracing::debug!("Thread shutting down");
-    }
-
-    async fn try_rcon_connection(&mut self) {
-        self.rcon_connection.init_rcon_connection().await;
     }
 
     pub fn tick(&mut self) -> bool{
@@ -89,6 +87,7 @@ impl CsctrlServer {
             }
             "server.match.start" => {
                 let mut cmd_vec = vec![
+                    self.generate_say_command("Applying match configuration"),
                     format!("mp_teamname_1 \"{}\"", self.match_setup.team_a_name),
                     format!("mp_teamname_2 \"{}\"", self.match_setup.team_b_name)
                 ];
@@ -109,27 +108,32 @@ impl CsctrlServer {
                     cmd_vec.push(split_cmd.to_string());
                 }
 
-
+                cmd_vec.push("mp_warmup_pausetimer 1".to_string());
+                cmd_vec.push("mp_warmup_start".to_string());
+                cmd_vec.push(self.generate_say_command("Starting warmup"));
+                cmd_vec.push(self.generate_say_command("Type '.ready' or '.unready' to change your readiness status"));
 
                 for cmd in cmd_vec {
                     Runtime::new().unwrap().block_on(self.rcon(cmd));
                 }
+
+                if !self.last_rcon_success {
+                    return;
+                }
+
+                self.send_message_to_main_thread("CsctrlMatchStatus:PreMatchWarmup");
             }
             &_ => {}
         }
     }
 
-    pub async fn rcon(&mut self, command: String) {
-        if !self.rcon_connection.get_is_valid() {
-            tracing::error!("No existing rcon connection to execute command 'rcon {}'", command);
-            return;
-        }
-
+    pub async fn rcon(&mut self, command: String) -> bool {
         let mut response = match self.rcon_connection.execute_command(&command).await {
             Ok(res) => { res }
             Err(error) => {
                 tracing::error!("Error while attempting rcon command. {}", error);
-                return;
+                self.last_rcon_success = false;
+                return false;
             }
         };
 
@@ -137,10 +141,17 @@ impl CsctrlServer {
         response.pop();
 
         tracing::trace!("Rcon response:\n{}", response);
+
+        self.last_rcon_success = true;
+        return true;
     }
 
     fn generate_say_command(&self, say_text: &str) -> String {
-        return format!("[{}]{}", self., say_text);
+        return format!("say [{}] {}", &get_static_data().read().unwrap().chat_signature, say_text);
+    }
+
+    fn send_message_to_main_thread(&self, message: &str) {
+        self.thread_sender.send(format!("{}{}{}", self.config.address, FORMAT_SEPARATOR, message)).expect("Can't send message to main thread");
     }
 
     pub fn set_match_setup(&mut self, setup: &MatchSetup) {

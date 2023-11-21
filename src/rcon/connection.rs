@@ -19,18 +19,6 @@ impl RconConnection {
         }
     }
 
-    pub async fn init_rcon_connection(&mut self) {
-        let mut tcp_stream = match self.get_tcp_stream().await {
-            Ok(stream) => { stream }
-            Err(error) => {
-                tracing::error!(error);
-                return;
-            }
-        };
-        self.authenticate(&mut tcp_stream).await;
-        tcp_stream.shutdown().await.expect("Failed to shutdown TCP stream during init");
-    }
-
     async fn get_tcp_stream(&self) -> Result<TcpStream, String> {
         return match tokio::net::TcpStream::connect(&self.address).await {
             Ok(stream) => {
@@ -42,17 +30,17 @@ impl RconConnection {
         };
     }
 
-    async fn authenticate(&mut self, tcp_stream: &mut TcpStream) {
+    async fn authenticate(&mut self, tcp_stream: &mut TcpStream) -> bool {
         if self.send_packet(tcp_stream, RconPacketType::Auth, &self.password.clone()).await < 0 {
             tracing::error!("Failed authentication: can't send authentication packet");
-            return;
+            return false;
         }
 
         let start_time = std::time::SystemTime::now();
         let received_packet = loop {
             if start_time.elapsed().unwrap().as_secs() > 5 {
                 tracing::error!("Failed authentication: receiving response timed out");
-                return;
+                return false;
             }
             let received_packet = self.receive_packet(tcp_stream).await;
             if received_packet.get_type() == RconPacketType::AuthResponse {
@@ -62,10 +50,10 @@ impl RconConnection {
 
         if received_packet.is_error() {
             tracing::error!("Failed authentication: the provided password is incorrect");
-            return;
+            return false;
         }
 
-        self.is_valid = true;
+        return true;
     }
 
     pub async fn execute_command(&mut self, command: &str) -> Result<String, String> {
@@ -76,7 +64,10 @@ impl RconConnection {
                 return Err(error.to_string());
             }
         };
-        self.authenticate(&mut tcp_stream).await;
+        let authenticated = self.authenticate(&mut tcp_stream).await;
+        if !authenticated {
+            return Err("Failed command execution: can't authenticate".to_string());
+        }
 
         if self.send_packet(&mut tcp_stream, RconPacketType::ExecCommand, command).await < 0 {
             return Err("Failed command execution: can't send command packet".to_string());
