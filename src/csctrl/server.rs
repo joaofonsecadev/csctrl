@@ -1,14 +1,13 @@
 use std::collections::{HashMap, VecDeque};
 use tokio::runtime::Runtime;
 use tokio::sync::mpsc::error::TryRecvError;
-use crate::csctrl::csctrl::{FORMAT_SEPARATOR, get_static_data};
+use crate::csctrl::csctrl::{FORMAT_SEPARATOR, get_data, get_static_data};
 use crate::csctrl::types::{CsctrlLogType, CsctrlServerSetup, MatchSetup};
 use crate::rcon::connection::RconConnection;
 use crate::system::utilities::get_csctrl_config_file_path;
 
 pub struct CsctrlServer {
-    config: CsctrlServerSetup,
-    match_setup: MatchSetup,
+    address: String,
     rcon_connection: crate::rcon::connection::RconConnection,
     thread_receiver: tokio::sync::mpsc::UnboundedReceiver<String>,
     thread_sender: tokio::sync::mpsc::UnboundedSender<String>,
@@ -18,17 +17,10 @@ pub struct CsctrlServer {
 impl CsctrlServer {
     pub fn csctrl_server(setup: CsctrlServerSetup, sender: tokio::sync::mpsc::UnboundedSender<String>, receiver: tokio::sync::mpsc::UnboundedReceiver<String>) -> CsctrlServer {
         CsctrlServer {
+            address: setup.address.to_string(),
             rcon_connection: RconConnection::create_rcon_connection(&setup.address, &setup.rcon_password),
-            config: setup,
             thread_receiver: receiver,
             thread_sender: sender,
-            match_setup: MatchSetup {
-                team_a_name: "".to_string(),
-                team_b_name: "".to_string(),
-                knife_round: false,
-                cfg_filename: "".to_string(),
-                player_amount: 0,
-            },
             last_rcon_success: false,
         }
     }
@@ -64,15 +56,6 @@ impl CsctrlServer {
 
     fn handle_thread_message(&mut self, message: String) {
         tracing::trace!("Received message: '{}'", message);
-
-        match serde_json::from_str(&message) {
-            Ok(match_setup_json) => {
-                self.set_match_setup(&match_setup_json);
-                return;
-            }
-            _ => {}
-        };
-
         let mut split_string: VecDeque<&str> = message.split(" ").collect();
         let first_word = split_string[0];
         match first_word {
@@ -86,22 +69,24 @@ impl CsctrlServer {
                 Runtime::new().unwrap().block_on(self.rcon(arguments.trim().to_string()));
             }
             "server.match.start" => {
+                let data = get_data().read().unwrap();
+                let server_data = data.servers.get(&self.address).unwrap();
+
                 let mut cmd_vec = vec![
                     self.generate_say_command("Loading match..."),
-                    format!("mp_teamname_1 \"{}\"", self.match_setup.team_a_name),
-                    format!("mp_teamname_2 \"{}\"", self.match_setup.team_b_name)
+                    format!("mp_teamname_1 \"{}\"", server_data.match_setup.team_a_name),
+                    format!("mp_teamname_2 \"{}\"", server_data.match_setup.team_b_name)
                 ];
 
                 let mut match_cfg_path = get_csctrl_config_file_path();
                 match_cfg_path.pop();
-                match_cfg_path.push(format!("cfg/{}.cfg", &self.match_setup.cfg_filename));
+                match_cfg_path.push(format!("cfg/{}.cfg", &server_data.match_setup.cfg_filename));
 
                 let match_cfg_string = std::fs::read_to_string(match_cfg_path);
                 if match_cfg_string.is_err() {
-                    tracing::error!("Error reading match cfg file '{}'", &self.match_setup.cfg_filename);
+                    tracing::error!("Error reading match cfg file '{}'", &server_data.match_setup.cfg_filename);
                     return;
                 }
-
                 let fixed_line_endings_split_cfg = match_cfg_string.unwrap().replace("\r\n", "\n");
                 let split_cfg: Vec<&str> = fixed_line_endings_split_cfg.split("\n").collect();
                 for split_cmd in split_cfg {
@@ -151,12 +136,6 @@ impl CsctrlServer {
     }
 
     fn send_message_to_main_thread(&self, message: &str) {
-        self.thread_sender.send(format!("{}{}{}", self.config.address, FORMAT_SEPARATOR, message)).expect("Can't send message to main thread");
+        self.thread_sender.send(format!("{}{}{}", self.address, FORMAT_SEPARATOR, message)).expect("Can't send message to main thread");
     }
-
-    pub fn set_match_setup(&mut self, setup: &MatchSetup) {
-        self.match_setup = setup.clone();
-    }
-
-    pub fn get_setup(&self) -> &CsctrlServerSetup { return &self.config }
 }

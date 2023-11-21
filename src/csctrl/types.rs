@@ -54,7 +54,7 @@ impl MatchSetup {
         }
         let setup_as_string = std::fs::read_to_string(match_setup_path);
         if setup_as_string.is_err() {
-            return Err(format!("Error reading match setup file '{}'", file_name));
+            return Err(format!("Error reading match setup file '{}'. {}", file_name, setup_as_string.err().unwrap()));
         }
         return Ok(setup_as_string.unwrap());
     }
