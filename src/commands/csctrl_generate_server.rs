@@ -20,6 +20,7 @@ impl crate::commands::base::Command for CsctrlGenerateServer {
             name: server_name,
             address: server_address,
             rcon_password: server_rcon_password,
+            match_setup: "default".to_string(),
         });
 
         csctrl.write_config();

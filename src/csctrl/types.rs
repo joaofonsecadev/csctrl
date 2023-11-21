@@ -1,4 +1,5 @@
 use std::collections::HashMap;
+use crate::system::utilities::get_csctrl_config_file_path;
 
 #[derive(serde::Serialize, serde::Deserialize)]
 pub struct CsctrlConfig {
@@ -20,6 +21,7 @@ pub struct CsctrlServerSetup {
     pub name: String,
     pub address: String,
     pub rcon_password: String,
+    pub match_setup: String
 }
 
 #[derive(serde::Serialize, serde::Deserialize, Clone)]
@@ -28,7 +30,34 @@ pub struct MatchSetup {
     pub team_b_name: String,
     pub knife_round: bool,
     pub cfg_filename: String,
-    pub player_amount: u8,
+    pub player_amount: i8,
+}
+
+impl MatchSetup {
+    pub fn load_match_setup(file_name: &str) -> Result<MatchSetup, String> {
+        let match_setup_string = match MatchSetup::load_match_setup_as_string(file_name) {
+            Ok(valid_string) => { valid_string }
+            Err(error) => { return Err(error); }
+        };
+
+        return match serde_json::from_str(&match_setup_string) {
+            Ok(match_setup_json) => { Ok(match_setup_json) }
+            _ => { Err(format!("Can't convert read string from '{}' to a valid MatchSetup", file_name)) }
+        }
+    }
+    pub fn load_match_setup_as_string(file_name: &str) -> Result<String, String> {
+        let mut match_setup_path = get_csctrl_config_file_path();
+        match_setup_path.pop();
+        match_setup_path.push(format!("matches/{}.json", file_name));
+        if !match_setup_path.exists() {
+            return Err(format!("Match setup file '{}' does not exist", file_name));
+        }
+        let setup_as_string = std::fs::read_to_string(match_setup_path);
+        if setup_as_string.is_err() {
+            return Err(format!("Error reading match setup file '{}'", file_name));
+        }
+        return Ok(setup_as_string.unwrap());
+    }
 }
 
 pub struct CsctrlServerContainer {
@@ -48,7 +77,9 @@ pub struct CsctrlDataServer {
     pub team_ct: CsctrlDataTeam,
     pub team_t: CsctrlDataTeam,
     pub status: CsctrlMatchStatus,
-    pub logs: Vec<String>
+    pub player_ready_amount: i8,
+    pub logs: Vec<String>,
+    pub match_setup: MatchSetup
 }
 
 #[derive(Clone)]

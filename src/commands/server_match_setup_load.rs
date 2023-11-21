@@ -35,7 +35,7 @@ impl crate::commands::base::Command for ServerMatchSetupLoad {
     }
 
     fn name(&self) -> String {
-        "server.match.setup.load".to_string()
+        "server.match.load".to_string()
     }
 
     fn description(&self) -> String {
@@ -47,6 +47,6 @@ impl crate::commands::base::Command for ServerMatchSetupLoad {
     }
 
     fn example(&self) -> String {
-        "server.match.setup.load default".to_string()
+        "server.match.load default".to_string()
     }
 }

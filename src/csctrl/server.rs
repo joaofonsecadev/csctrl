@@ -87,7 +87,7 @@ impl CsctrlServer {
             }
             "server.match.start" => {
                 let mut cmd_vec = vec![
-                    self.generate_say_command("Applying match configuration"),
+                    self.generate_say_command("Loading match..."),
                     format!("mp_teamname_1 \"{}\"", self.match_setup.team_a_name),
                     format!("mp_teamname_2 \"{}\"", self.match_setup.team_b_name)
                 ];
@@ -110,7 +110,7 @@ impl CsctrlServer {
 
                 cmd_vec.push("mp_warmup_pausetimer 1".to_string());
                 cmd_vec.push("mp_warmup_start".to_string());
-                cmd_vec.push(self.generate_say_command("Starting warmup"));
+                cmd_vec.push(self.generate_say_command("WARMUP START"));
                 cmd_vec.push(self.generate_say_command("Type '.ready' or '.unready' to change your readiness status"));
 
                 for cmd in cmd_vec {

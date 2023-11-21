@@ -13,7 +13,7 @@ use crate::commands::server_match_setup_load::ServerMatchSetupLoad;
 use crate::commands::server_match_start::ServerMatchStart;
 use crate::commands::terminal_server_select::TerminalServerSelect;
 use crate::csctrl::server::CsctrlServer;
-use crate::csctrl::types::{CsctrlDataParent, CsctrlDataServer, CsctrlDataTeam, CsctrlLogType, CsctrlMatchStatus, CsctrlServerContainer, CsctrlServerSetup, CsctrlStaticData};
+use crate::csctrl::types::{CsctrlDataParent, CsctrlDataServer, CsctrlDataTeam, CsctrlLogType, CsctrlMatchStatus, CsctrlServerContainer, CsctrlServerSetup, CsctrlStaticData, MatchSetup};
 use crate::csctrl::types::CsctrlLogType::Invalid;
 use crate::terminal::terminal::Terminal;
 use crate::webserver::webserver::Webserver;
@@ -134,6 +134,19 @@ impl Csctrl {
             };
             self.servers.insert(server.address.to_string(), server_container);
 
+            let mut match_setup = MatchSetup {
+                team_a_name: "".to_string(),
+                team_b_name: "".to_string(),
+                knife_round: false,
+                cfg_filename: "".to_string(),
+                player_amount: 0,
+            };
+
+            match MatchSetup::load_match_setup(&server.match_setup) {
+                Ok(valid_json_setup) => { match_setup = valid_json_setup.clone(); }
+                Err(error) => { tracing::error!(error); }
+            }
+
             get_data().write().unwrap().servers.insert(server.address.to_string(), CsctrlDataServer {
                 config: server.clone(),
                 is_online: false,
@@ -148,7 +161,9 @@ impl Csctrl {
                     players: vec![],
                 },
                 status: CsctrlMatchStatus::NoHook,
+                player_ready_amount: 0,
                 logs: vec![],
+                match_setup,
             });
 
             self.is_data_dirty = true;
@@ -294,6 +309,10 @@ impl Csctrl {
         }
 
         return unprocessed_server_log.to_string();
+    }
+
+    pub fn set_data_dirty(&mut self) {
+        self.is_data_dirty = true;
     }
 
     pub fn write_config(&self) {
