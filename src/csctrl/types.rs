@@ -127,4 +127,5 @@ impl CsctrlMatchStatus {
 pub enum CsctrlLogType {
     Invalid,
     PlayerSay,
+    PlayerSwitchTeam,
 }

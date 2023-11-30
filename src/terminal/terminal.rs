@@ -3,16 +3,18 @@ use crossterm::ExecutableCommand;
 use crossterm::terminal::{disable_raw_mode, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen};
 use ratatui::backend::{Backend, CrosstermBackend};
 use std::cell::OnceCell;
+use std::cmp;
 use std::str::Lines;
 use clap::Parser;
 use crossterm::event::{Event, KeyCode, KeyEventKind};
 use ratatui::Frame;
-use ratatui::layout::{Constraint, Layout};
+use ratatui::layout::{Alignment, Constraint, Layout};
 use ratatui::prelude::{Color, Direction};
 use ratatui::style::{Style, Stylize};
 use ratatui::text::Span;
 use ratatui::widgets::{Block, Borders, Paragraph, Wrap};
 use ratatui::widgets::GraphType::Line;
+use tracing_subscriber::fmt::format;
 use crate::ClapParser;
 use crate::csctrl::types::CsctrlDataParent;
 
@@ -130,7 +132,7 @@ fn ui(state: &mut TerminalUiState, data: &mut CsctrlDataParent, frame: &mut Fram
         .direction(Direction::Vertical)
         .constraints(vec![
             Constraint::Length(1),
-            Constraint::Length(terminal_height - 2),
+            Constraint::Length(cmp::max(terminal_height as i32 - 2, 1) as u16),
             Constraint::Length(1),
         ])
         .split(frame.size());
@@ -150,6 +152,33 @@ fn ui(state: &mut TerminalUiState, data: &mut CsctrlDataParent, frame: &mut Fram
             Constraint::Percentage(30)
         ])
         .split(layout_servers_active[1]);
+
+    let layout_active_borders = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints(vec![
+            Constraint::Length(1),
+            Constraint::Length(cmp::max(layout_active_logs[0].width as i32 - 2, 1) as u16),
+            Constraint::Length(1)
+        ])
+        .split(layout_active_logs[0]);
+
+    let layout_active_borders_inner = Layout::default()
+        .direction(Direction::Vertical)
+        .constraints(vec![
+            Constraint::Length(1),
+            Constraint::Length(cmp::max(layout_active_logs[0].height as i32 - 2, 1) as u16),
+            Constraint::Length(1)
+        ])
+        .split(layout_active_borders[1]);
+
+    let layout_active_server_data = Layout::default()
+        .direction(Direction::Horizontal)
+        .constraints(vec![
+            Constraint::Percentage(30),
+            Constraint::Percentage(30),
+            Constraint::Percentage(40),
+        ])
+        .split(layout_active_borders_inner[1]);
 
     let mut server_list: Vec<ratatui::prelude::Line<'_>> = vec![
         ratatui::prelude::Line::from(vec!["Selected".bg(Color::Green).black().bold(), "  ".into(), "Online".green(), "  ".into(), "Offline".dark_gray()]),
@@ -173,6 +202,48 @@ fn ui(state: &mut TerminalUiState, data: &mut CsctrlDataParent, frame: &mut Fram
     frame.render_widget(Paragraph::new(server_list).block(servers_block).wrap(Wrap { trim: false }), layout_servers_active[0]);
     frame.render_widget(Block::new().title("Selected server data").borders(Borders::all()), layout_active_logs[0]);
     frame.render_widget(Block::new().title("Logs").borders(Borders::all()), layout_active_logs[1]);
+
+    let selected_server_data_option = data.servers.get(&state.selected_server_address);
+    if selected_server_data_option.is_some() {
+        let selected_server_data = selected_server_data_option.unwrap();
+
+        let team_ct_score = selected_server_data.team_ct.score.to_string();
+        let mut team_ct_list: Vec<ratatui::prelude::Line<'_>> = vec![];
+
+        let team_t_score = selected_server_data.team_t.score.to_string();
+        let mut team_t_list: Vec<ratatui::prelude::Line<'_>> = vec![];
+
+        for player_ct in &selected_server_data.team_ct.players {
+            team_ct_list.push(Span::styled(&player_ct.name, Style::default()).into());
+        }
+
+        for player_t in &selected_server_data.team_t.players {
+            team_t_list.push(Span::styled(&player_t.name, Style::default()).into());
+        }
+
+        let team_ct_name = if !selected_server_data.team_ct.name.is_empty() {
+            format!("{} - ", selected_server_data.team_ct.name)
+        } else {
+            "".to_string()
+        };
+
+        let team_t_name = if !selected_server_data.team_t.name.is_empty() {
+            format!("- {}", selected_server_data.team_t.name)
+        } else {
+            "".to_string()
+        };
+
+        let team_ct_border_title = format!(" {}Team CT - {} ", team_ct_name, selected_server_data.team_ct.score);
+        let team_t_border_title = format!(" {} - Team T{} ", selected_server_data.team_ct.score, team_t_name);
+
+        let team_ct_block = Block::new().title(team_ct_border_title).border_style(Style::default().light_blue()).title_style(Style::default().light_blue()).title_alignment(Alignment::Right).borders(Borders::all());
+        let team_t_block = Block::new().title(team_t_border_title).border_style(Style::default().yellow()).title_style(Style::default().yellow()).title_alignment(Alignment::Left).borders(Borders::all());
+        let events_block = Block::new().title("Events").borders(Borders::all());
+
+        frame.render_widget(Paragraph::new(team_ct_list).block(team_ct_block).alignment(Alignment::Right), layout_active_server_data[0]);
+        frame.render_widget(Paragraph::new(team_t_list).block(team_t_block).alignment(Alignment::Left), layout_active_server_data[1]);
+        frame.render_widget(events_block, layout_active_server_data[2]);
+    }
 
     let time_in_secs = std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).unwrap().as_secs();
     let cursor = if time_in_secs % 2 == 0 || time_in_secs - state.last_type_time_secs < 1 { "█" } else { "" };

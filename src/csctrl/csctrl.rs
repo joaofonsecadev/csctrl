@@ -109,6 +109,7 @@ impl Csctrl {
 
     fn register_log_regex_matchers(&mut self) {
         self.log_regex_matchers.insert(CsctrlLogType::PlayerSay, regex::Regex::new(r#"[0-9\/\ \-\.\:]*\"(?<username>.*)<[0-9]*><\[(?<steam_id>[a-zA-Z]\:[0-9]\:[0-9]*)]><(?<team_side>CT|TERRORIST)>\" (?:say_team|say) \"(?<chat>.*)\""#).unwrap());
+        self.log_regex_matchers.insert(CsctrlLogType::PlayerSwitchTeam, regex::Regex::new(r#"[0-9\/\ \-\.\:]*\"(?<username>.*)<[0-9]*><\[(?<steam_id>[a-zA-Z]\:[0-9]\:[0-9]*)]>\" switched from team <(?<team_from>TERRORIST|CT|Unassigned)> to <(?<team_to>TERRORIST|CT|Unassigned)>"#).unwrap());
     }
 
     fn reset_registered_servers(&mut self) {
@@ -304,7 +305,8 @@ impl Csctrl {
 
         let regex_captures = regex.captures(unprocessed_server_log).unwrap();
         match log_type {
-            CsctrlLogType::PlayerSay => { csctrl::log_events::player_say(self, server_data, regex_captures["username"].to_string(), regex_captures["steam_id"].to_string(), regex_captures["team_side"].to_string(), regex_captures["chat"].to_string()) }
+            CsctrlLogType::PlayerSay => { csctrl::log_events::player_say(self, server_data, &regex_captures) }
+            CsctrlLogType::PlayerSwitchTeam => { csctrl::log_events::player_switch_team(self, server_data, &regex_captures) }
             _ => {}
         }
 
